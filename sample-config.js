@@ -16,9 +16,9 @@ config.debug = true; // for additional logging / debugging
 config.watch = {
 
   // see https://gekko.wizb.it/docs/introduction/supported_exchanges.html
-  exchange: 'poloniex',
+  exchange: 'binance',
   currency: 'USDT',
-  asset: 'BTC',
+  asset: 'ETH',
 
   // You can set your own tickrate (refresh rate).
   // If you don't set it, the defaults are 2 sec for
@@ -219,7 +219,7 @@ config.trader = {
 }
 
 config.eventLogger = {
-  enabled: false,
+  enabled: true,
   // optionally pass a whitelist of events to log, if not past
   // the eventLogger will log _all_ events.
   // whitelist: ['portfolioChange', 'portfolioValueChange']
@@ -377,17 +377,17 @@ config.ifttt = {
 }
 
 config.candleWriter = {
-  enabled: false
+  enabled: true
 }
 
 config.adviceWriter = {
-  enabled: false,
+  enabled: true,
   muteSoft: true,
 }
 
 config.backtestResultExporter = {
-  enabled: false,
-  writeToDisk: false,
+  enabled: true,
+  writeToDisk: true,
   data: {
     stratUpdates: false,
     roundtrips: true,
@@ -400,7 +400,7 @@ config.backtestResultExporter = {
 //                       CONFIGURING ADAPTER
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-config.adapter = 'sqlite';
+config.adapter = 'postgresql';
 
 config.sqlite = {
   path: 'plugins/sqlite',
@@ -417,7 +417,7 @@ config.sqlite = {
 config.postgresql = {
   path: 'plugins/postgresql',
   version: 0.1,
-  connectionString: 'postgres://user:pass@localhost:5432', // if default port
+  connectionString: 'postgres://gekkodbuser:1234@localhost:5432', // if default port
   database: null, // if set, we'll put all tables into a single database.
   schema: 'public',
   dependencies: [{
@@ -445,9 +445,9 @@ config.mongodb = {
 // @link: https://gekko.wizb.it/docs/commandline/backtesting.html
 
 config.backtest = {
-  daterange: 'scan',
+//  daterange: 'scan',
 // daterange: {
-//   from: "2018-03-01",
+   from: "2018-06-01",
 //   to: "2018-04-28"
 //},
   batchSize: 50
@@ -460,8 +460,8 @@ config.backtest = {
 config.importer = {
   daterange: {
     // NOTE: these dates are in UTC
-    from: "2017-11-01 00:00:00",
-    to: "2017-11-20 00:00:00"
+    from: "2018-06-01 00:00:00"
+    //to: "2017-11-20 00:00:00"
   }
 }
 
