@@ -8,10 +8,10 @@ Crypto Trading Bot based on askmike/gekko
 
 ## Getting started
 
-git clone https://github.com/mark-sch/gekko
-cd gekko
-npm install
-npm start
+- git clone https://github.com/mark-sch/gekko
+- cd gekko
+- npm install
+- npm start
 
 (postgresql experience required to previously setup postgres. Sample config assumes an existing db user gekkodbuser, pass 1234, with added role permission to createdb)
 
