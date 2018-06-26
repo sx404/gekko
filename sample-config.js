@@ -7,7 +7,7 @@ var config = {};
 //                          GENERAL SETTINGS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-config.debug = true; // for additional logging / debugging
+config.debug = false; // for additional logging / debugging
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                         WATCHING A MARKET
@@ -16,9 +16,9 @@ config.debug = true; // for additional logging / debugging
 config.watch = {
 
   // see https://gekko.wizb.it/docs/introduction/supported_exchanges.html
-  exchange: 'poloniex',
+  exchange: 'hitbtc2',
   currency: 'USDT',
-  asset: 'BTC',
+  asset: 'MTC',
 
   // You can set your own tickrate (refresh rate).
   // If you don't set it, the defaults are 2 sec for
@@ -375,7 +375,7 @@ config.ifttt = {
 }
 
 config.candleWriter = {
-  enabled: false
+  enabled: true
 }
 
 config.adviceWriter = {
@@ -434,10 +434,10 @@ config.mongodb = {
 config.backtest = {
   daterange: 'scan',
 // daterange: {
-//   from: "2018-03-01",
+     from: "2018-06-01"
 //   to: "2018-04-28"
 //},
-  batchSize: 50
+  batchSize: 1000
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -447,8 +447,8 @@ config.backtest = {
 config.importer = {
   daterange: {
     // NOTE: these dates are in UTC
-    from: "2017-11-01 00:00:00",
-    to: "2017-11-20 00:00:00"
+    from: "2017-05-01 00:00:00"
+    //to: "2017-11-20 00:00:00"
   }
 }
 
