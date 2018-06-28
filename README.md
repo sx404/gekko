@@ -1,14 +1,19 @@
 # Gekko [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
-![Gordon Gekko](http://mikevanrossum.nl/static/gekko.jpg)
+Crypto Trading Bot based on askmike/gekko
 
-*The most valuable commodity I know of is information.*
+- Use postgresql DB as default db to prevent sqlite lock scenarios
+- Added hitbtc exchange based on v2 API and ccxt library
+- Added often used package dependencies by default to get started quickly (npm install)
 
--Gordon Gekko
+## Getting started
 
-Gekko is a Bitcoin TA trading and backtesting platform that connects to popular Bitcoin exchanges. It is written in JavaScript and runs on [Node.js](http://nodejs.org).
+- git clone https://github.com/mark-sch/gekko
+- cd gekko
+- npm install
+- npm start
 
-*Use Gekko at your own risk.*
+(postgresql experience required to previously setup postgres. Sample config assumes an existing db user gekkodbuser, pass 1234, with added role permission to createdb)
 
 ## Documentation
 
