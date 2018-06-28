@@ -3,6 +3,7 @@
 Crypto Trading Bot based on askmike/gekko
 
 - Use postgresql DB as default db to prevent sqlite lock scenarios
+  - Rewritten postgres plugin, using connection pooling and transaction safe candle writing (Postgres 9.5+ required)
 - Added hitbtc exchange based on v2 API and ccxt library
 - Added often used package dependencies by default to get started quickly (npm install)
 
@@ -13,7 +14,7 @@ Crypto Trading Bot based on askmike/gekko
 - npm install
 - npm start
 
-(postgresql experience required to previously setup postgres. Sample config assumes an existing db user gekkodbuser, pass 1234, with added role permission to createdb)
+(postgresql experience required to previously setup postgres. Sample config assumes an existing db user gekkodbuser, pass 1234, with added role permission to createdb. PostgreSQL 9.5+ required.)
 
 ## Documentation
 
