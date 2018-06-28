@@ -54,10 +54,11 @@ Stitcher.prototype.prepareHistoricalData = function(done) {
 
   var endTime = moment().utc().startOf('minute');
   var idealStartTime = endTime.clone().subtract(requiredHistory, 'm');
-
+  
   this.reader.mostRecentWindow(idealStartTime, endTime, function(localData) {
     // now we know what data is locally available, what
     // data would we need from the exchange?
+    
     if(!localData) {
       log.info('\tNo usable local data available, trying to get as much as possible from the exchange..');
       var idealExchangeStartTime = idealStartTime.clone();
@@ -190,7 +191,6 @@ Stitcher.prototype.checkExchangeTrades = function(since, next) {
   }
 
   var watcher = new DataProvider(exchangeConfig);
-
   watcher.getTrades(since, function(e, d) {
     if(_.isEmpty(d))
       return util.die(
