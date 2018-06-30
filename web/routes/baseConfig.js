@@ -1,4 +1,4 @@
-var UIconfig = require('../vue/UIconfig');
+var UIconfig = require('../vue/public/UIconfig');
 
 var config = {};
 
@@ -6,8 +6,8 @@ var config = {};
 //                          GENERAL SETTINGS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-config.silent = true;
-config.debug = false;
+config.silent = false;
+config.debug = true;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                       CONFIGURING TRADING ADVICE
@@ -19,13 +19,9 @@ config.tradingAdvisor = {
 config.candleWriter = {
   enabled: false
 }
-config.adviceWriter = {
-  enabled: false,
-  muteSoft: true,
-}
 
 config.backtestResultExporter = {
-  enabled: true,
+  enabled: false,
   writeToDisk: false,
   data: {
     stratUpdates: false,
@@ -33,6 +29,10 @@ config.backtestResultExporter = {
     stratCandles: true,
     trades: true
   }
+}
+
+config.childToParent = {
+  enabled: false,
 }
 
 config.trader = {

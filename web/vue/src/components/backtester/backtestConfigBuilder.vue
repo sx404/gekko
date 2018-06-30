@@ -1,4 +1,4 @@
-<template lang='jade'>
+<template lang='pug'>
   div
     dataset-picker.my2(v-on:dataset='updateDataset').contain
     .hr
@@ -83,6 +83,7 @@ export default {
       );
 
       config.valid = this.validConfig(config);
+      config.backtestResultExporter.enabled = true;
 
       return config;
     }

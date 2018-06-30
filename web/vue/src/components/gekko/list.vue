@@ -1,4 +1,4 @@
-<template lang='jade'>
+<template lang='pug'>
   .contain.py2
     .text(v-html='text')
     .hr
@@ -99,10 +99,10 @@ export default {
   },
   computed: {
     stratrunners: function() {
-      return this.$store.state.stratrunners
+      return []; //this.$store.state.stratrunners
     },
     watchers: function() {
-      return this.$store.state.watchers
+      return []; //this.$store.state.watchers
     }
   },
   methods: {
