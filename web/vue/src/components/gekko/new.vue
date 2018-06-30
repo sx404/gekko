@@ -4,7 +4,8 @@
     gekko-config-builder(v-on:config='updateConfig')
     .hr
     .txt--center(v-if='config.valid')
-      a.w100--s.my1.btn--primary(href='#', v-on:click.prevent='start') Start
+      a.w100--s.my1.btn--primary(href='#', v-on:click.prevent='start', v-if="!pendingStratrunner") Start
+      spinner(v-if='pendingStratrunner')
 </template>
 
 <script>
@@ -13,10 +14,12 @@ import _ from 'lodash'
 import Vue from 'vue'
 import { post } from '../../tools/ajax'
 import gekkoConfigBuilder from './gekkoConfigBuilder.vue'
+import spinner from '../global/blockSpinner.vue'
 
 export default {
   components: {
-    gekkoConfigBuilder
+    gekkoConfigBuilder,
+    spinner
   },
   data: () => {
     return {
@@ -26,7 +29,6 @@ export default {
   },
   computed: {
     gekkos: function() {
-      console.log('computed gekkos');
       return this.$store.state.gekkos;
     },
     watchConfig: function() {
@@ -76,7 +78,6 @@ export default {
     },
     existingMarketWatcher: function() {
       const market = Vue.util.extend({}, this.watchConfig.watch);
-      console.log({config: {watch: market}}, _.find(this.gekkos, {config: {watch: market}}));
       return _.find(this.gekkos, {config: {watch: market}});
     },
     exchange: function() {
@@ -95,20 +96,17 @@ export default {
   watch: {
     // start the stratrunner
     existingMarketWatcher: function(val, prev) {
-      console.log('watching... 1');
       if(!this.pendingStratrunner)
         return;
 
       const gekko = this.existingMarketWatcher;
-
-      console.log('watching...', gekko);
 
       if(gekko.events.latest.candle) {
         this.pendingStratrunner = false;
 
         this.startGekko((err, resp) => {
           this.$router.push({
-            path: `/live-gekkos/stratrunner/${resp.id}`
+            path: `/live-gekkos/${resp.id}`
           });
         });
       }
@@ -159,17 +157,14 @@ export default {
       } else {
 
         if(this.existingMarketWatcher) {
-          console.log(1);
           // the specified market is already being watched,
           // just start a gekko!
           this.startGekko(this.routeToGekko);
           
         } else {
-          console.log(2);
           // the specified market is not yet being watched,
           // we need to create a watcher
           this.startWatcher((err, resp) => {
-            console.log(3, resp.id);
             this.pendingStratrunner = resp.id;
             // now we just wait for the watcher to be properly initialized
             // (see the `watch.existingMarketWatcher` method)
@@ -182,7 +177,7 @@ export default {
         return console.error(err, resp.error);
 
       this.$router.push({
-        path: `/live-gekkos/stratrunner/${resp.id}`
+        path: `/live-gekkos/${resp.id}`
       });
     },
     startWatcher: function(next) {
