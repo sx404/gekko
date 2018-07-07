@@ -8,8 +8,6 @@ Note that all events from Gekko come from a plugin (with the exception of the `c
 
     (WARN): Paper Trader wanted to listen to the tradingAdvisor, however the tradingAdvisor is disabled.
 
-*NOTE: Events describe async communication about what is happening, it's hard to guarentee the proper order of events during backtests which pipe in historical candles as fast as the plugins can consume them. Stabalizing this is a work in progress but expect things to break until proper behaviour has been validated under a variaty of platform circumstances (OS, hardware, etc).*
-
 ## List of events emitted by standard plugins
 
 - [candle](#candle-event): Every time Gekko calculas a new one minute candle from the market.
@@ -170,7 +168,9 @@ and will start signaling advice.
         cost: [number the amount in currency representing fee, slippage and other execution costs],
         date: [moment object, exchange time trade completed at],
         portfolio: [object containing amount in currency and asset],
-        balance: [number, total worth of portfolio]
+        balance: [number, total worth of portfolio],
+        feePercent: [the cost in fees],
+        effectivePrice: [executed price - fee percent, if effective price of buy is below that of sell you are ALWAYS in profit.]
       }
 
 ### portfolioChange event

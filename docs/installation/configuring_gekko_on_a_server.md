@@ -1,4 +1,6 @@
-# Installing Gekko on a server
+# Configuring Gekko on a server
+
+*NOTE: unfortunately configuring Gekko to run on a server is hard. Unless you are running in a completely trusted network (home network) you WILL need to get an SSL certificate, upstream Gekko through a webserver, etc. I am creating an official Gekko service called [Gekko Plus](https://gekkoplus.com/) that will NOT require any of this stuff.*
 
 Gekko runs great headless (on a server, raspberry PI) but the default configuration assumes that you will be using a browser from the same machine to access the interface.
 
@@ -8,7 +10,7 @@ Please see the normal [installing gekko](./installing_gekko.md) document, but be
 
 # Configuring Gekko
 
-In order to setup Gekko so that you can access it remotely you need to open and edit the following file: `gekko/web/vue/UIconfig.js`. You need to configure this file according to your use case:
+In order to setup Gekko so that you can access it remotely you need to open and edit the following file: `gekko/web/vue/dist/UIconfig.js`. You need to configure this file according to your use case:
 
 - You want to Gekko headless in a trusted environment (eg. on a raspberry pi or old laptop in your home network) - [see here](#configuring-gekko-to-run-headless-in-a-trusted-environment).
 - You want to run Gekko in the cloud on a server - [see here](#configuring-gekko-to-run-in-the-cloud).

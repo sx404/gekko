@@ -85,8 +85,14 @@ export default {
     },
     existingTradebot: function() {
       return _.find(
-        this.gekkos.filter(g => g.logType === 'tradebot'),
-        { watch: { exchange: this.exchange } }
+        this.gekkos,
+        g => {
+          if(g.logType === 'tradebot' && g.config.watch.exchange === this.exchange) {
+            return true;
+          }
+
+          return false;
+        }
       );
     },
     availableApiKeys: function() {
@@ -144,12 +150,12 @@ export default {
         if(this.existingMarketWatcher) {
           alert('This market is already being watched, redirecting you now...');
           this.$router.push({
-            path: `/live-gekkos/watcher/${this.existingMarketWatcher.id}`
+            path: `/live-gekkos/${this.existingMarketWatcher.id}`
           });
         } else {
           this.startWatcher((error, resp) => {
             this.$router.push({
-              path: `/live-gekkos/watcher/${resp.id}`
+              path: `/live-gekkos/${resp.id}`
             });
           });
         }

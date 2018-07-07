@@ -108,7 +108,6 @@ class StickyOrder extends BaseOrder {
 
     const alreadyFilled = this.calculateFilled();
 
-    // console.log(new Date, `creating [${this.api.name}] ${this.side} ${this.api.roundAmount(this.amount - alreadyFilled)} at ${this.price}`);
     this.submit({
       side: this.side,
       amount: this.api.roundAmount(this.amount - alreadyFilled),
@@ -492,16 +491,16 @@ class StickyOrder extends BaseOrder {
         });
       }
 
-      if(_.first(trades) && _.first(trades).feePerc) {
-        summary.feePerc = 0;
+      if(_.first(trades) && _.first(trades).feePercent) {
+        summary.feePercent = 0;
         let amount = 0;
 
         _.each(trades, trade => {
-          if(!trade || !trade.feePerc) {
+          if(!trade || !trade.feePercent) {
             return;
           }
 
-          summary.feePerc = ((summary.feePerc * amount) + (+trade.feePerc * trade.amount)) / (+trade.amount + amount);
+          summary.feePercent = ((summary.feePercent * amount) + (+trade.feePercent * trade.amount)) / (+trade.amount + amount);
           amount += +trade.amount;
         });
       }

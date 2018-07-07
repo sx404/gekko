@@ -237,10 +237,11 @@ Trader.prototype.getOrder = function(order, callback) {
     const date = moment(data.done_at);
     const fees = {
       // you always pay fee in the base currency on gdax
-      [this.currency]: +data.fill_fees,
+      [this.currency]: +data.fill_fees
     }
+    const feePercent = +data.fill_fees / price / amount * 100;
 
-    callback(undefined, { price, amount, date, fees });
+    callback(undefined, { price, amount, date, fees, feePercent });
   };
 
   const fetch = cb =>
@@ -266,7 +267,7 @@ Trader.prototype.cancelOrder = function(order, callback) {
 Trader.prototype.getTrades = function(since, callback, descending) {
   var lastScan = 0;
 
-  var process = function(err, data) {
+  const handle = function(err, data) {
     if (err) return callback(err);
 
     var result = _.map(data, function(trade) {
@@ -288,7 +289,7 @@ Trader.prototype.getTrades = function(since, callback, descending) {
         if (moment.utc(last.time) < moment.utc(since)) {
           this.scanbackTid = last.trade_id;
         } else {
-          log.debug('Scanning backwards...' + last.time);
+          console.log('Scanning backwards...' + last.time);
           setTimeout(() => {
             let handler = cb =>
               this.gdax_public.getProductTrades(
@@ -314,7 +315,7 @@ Trader.prototype.getTrades = function(since, callback, descending) {
 
       if (this.scanbackTid) {
         // if scanbackTid is set we need to move forward again
-        log.debug(
+        console.log(
           'Backwards: ' +
             last.time +
             ' (' +
@@ -347,7 +348,7 @@ Trader.prototype.getTrades = function(since, callback, descending) {
           this.scanback = false;
           this.scanbackTid = 0;
 
-          log.debug('Scan finished: data found:' + this.scanbackResults.length);
+          console.log('Scan finished: data found:' + this.scanbackResults.length);
           callback(null, this.scanbackResults);
 
           this.scanbackResults = [];
@@ -373,18 +374,17 @@ Trader.prototype.getTrades = function(since, callback, descending) {
         _.bind(process, this)
       );
     } else {
-      log.debug('Scanning back in the history needed...');
-      log.debug(moment.utc(since).format());
+      console.log('Scanning back in the history needed...', since);
     }
   }
 
-  let handler = cb =>
+  const fetch = cb =>
     this.gdax_public.getProductTrades(
       this.pair,
       { limit: BATCH_SIZE },
       this.processResponse('getTrades', cb)
     );
-  retry(retryForever, _.bind(handler, this), _.bind(process, this));
+  retry(null, fetch, handle);
 };
 
 Trader.prototype.getMaxDecimalsNumber = function(number, decimalLimit = 8) {

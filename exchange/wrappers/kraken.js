@@ -1,13 +1,11 @@
-const Kraken = require('kraken-api-es5');
+const Kraken = require('kraken-api');
 const moment = require('moment');
 const _ = require('lodash');
+const retry = require('../exchangeUtils').retry;
 
-const util = require('../core/util');
-const Errors = require('../core/error');
-const log = require('../core/log');
 const marketData = require('./kraken-markets.json');
 
-var Trader = function(config) {
+const Trader = function(config) {
   _.bindAll(this);
 
   if(_.isObject(config)) {
@@ -32,52 +30,54 @@ var Trader = function(config) {
   );
 }
 
-var retryCritical = {
-  retries: 10,
-  factor: 1.2,
-  minTimeout: 1 * 1000,
-  maxTimeout: 30 * 1000
-};
+const recoverableErrors = [
+  'SOCKETTIMEDOUT',
+  'TIMEDOUT',
+  'CONNRESET',
+  'CONNREFUSED',
+  'NOTFOUND',
+  'API:Rate limit exceeded',
+  'Service:Unavailable',
+  'Request timed out',
+  'Response code 5',
+  'Empty response'
+];
 
-var retryForever = {
-  forever: true,
-  factor: 1.2,
-  minTimeout: 10 * 1000,
-  maxTimeout: 30 * 1000
-};
+const includes = (str, list) => {
+  if(!_.isString(str))
+    return false;
 
-var recoverableErrors = new RegExp(/(SOCKETTIMEDOUT|TIMEDOUT|CONNRESET|CONNREFUSED|NOTFOUND|API:Rate limit exceeded|API:Invalid nonce|Service:Unavailable|Request timed out|Response code 5)/)
-
-Trader.prototype.processError = function(funcName, error) {
-  if (!error) return undefined;
-
-  if (!error.message.match(recoverableErrors)) {
-    log.error(`[kraken.js] (${funcName}) returned an irrecoverable error: ${error.message}`);
-    return new Errors.AbortError('[kraken.js] ' + error.message);
-  }
-
-  log.debug(`[kraken.js] (${funcName}) returned an error, retrying: ${error.message}`);
-  return new Errors.RetryError('[kraken.js] ' + error.message);
-};
+  return _.some(list, item => str.includes(item));
+}
 
 Trader.prototype.handleResponse = function(funcName, callback) {
   return (error, body) => {
-    if(!error) {
-      if(_.isEmpty(body) || !body.result)
-        error = new Error('NO DATA WAS RETURNED');
 
-      else if(!_.isEmpty(body.error))
-        error = new Error(body.error);
+    if(!error && !body) {
+      error = new Error('Empty response');
     }
 
-    return callback(this.processError(funcName, error), body);
+    if(error) {
+      if(includes(error.message, recoverableErrors)) {
+        error.notFatal = true;
+      }
+
+      if(includes(error.message, ['Rate limit exceeded'])) {
+        error.notFatal = true;
+        error.backoffDelay = 1000;
+      }
+
+      return callback(error);
+    }
+
+    return callback(undefined, body);
   }
 };
 
 Trader.prototype.getTrades = function(since, callback, descending) {
-  var startTs = since ? moment(since).valueOf() : null;
+  const startTs = since ? moment(since).valueOf() : null;
 
-  var processResults = function(err, trades) {
+  const handle = (err, trades) => {
     if (err) return callback(err);
 
     var parsedTrades = [];
@@ -99,7 +99,7 @@ Trader.prototype.getTrades = function(since, callback, descending) {
       callback(undefined, parsedTrades);
   };
 
-  let reqData = {
+  const reqData = {
     pair: this.pair
   };
 
@@ -108,29 +108,28 @@ Trader.prototype.getTrades = function(since, callback, descending) {
     reqData.since = startTs * 1000000;
   }
 
-  let handler = (cb) => this.kraken.api('Trades', reqData, this.handleResponse('getTrades', cb));
-  util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResults, this));
+  const fetch = cb => this.kraken.api('Trades', reqData, this.handleResponse('getTrades', cb));
+  retry(null, fetch, handle);
 };
 
 Trader.prototype.getPortfolio = function(callback) {
-  var setBalance = function(err, data) {
+  const handle = (err, data) => {
     if(err) return callback(err);
-    log.debug('[kraken.js] entering "setBalance" callback after kraken-api call, data:' , data);
 
-    var assetAmount = parseFloat( data.result[this.market.prefixed[1]] );
-    var currencyAmount = parseFloat( data.result[this.market.prefixed[0]] );
+    const assetAmount = parseFloat( data.result[this.market.prefixed[1]] );
+    const currencyAmount = parseFloat( data.result[this.market.prefixed[0]] );
 
     if(!_.isNumber(assetAmount) || _.isNaN(assetAmount)) {
-      log.error(`Kraken did not return portfolio for ${this.asset}, assuming 0.`);
+      console.log(`Kraken did not return portfolio for ${this.asset}, assuming 0.`);
       assetAmount = 0;
     }
 
     if(!_.isNumber(currencyAmount) || _.isNaN(currencyAmount)) {
-      log.error(`Kraken did not return portfolio for ${this.currency}, assuming 0.`);
+      console.log(`Kraken did not return portfolio for ${this.currency}, assuming 0.`);
       currencyAmount = 0;
     }
 
-    var portfolio = [
+    const portfolio = [
       { name: this.asset, amount: assetAmount },
       { name: this.currency, amount: currencyAmount }
     ];
@@ -138,8 +137,8 @@ Trader.prototype.getPortfolio = function(callback) {
     return callback(undefined, portfolio);
   };
 
-  let handler = (cb) => this.kraken.api('Balance', {}, this.handleResponse('getPortfolio', cb));
-  util.retryCustom(retryForever, _.bind(handler, this), _.bind(setBalance, this));
+  const fetch = cb => this.kraken.api('Balance', {}, this.handleResponse('getPortfolio', cb));
+  retry(null, fetch, handle);
 };
 
 // This assumes that only limit orders are being placed with standard assets pairs
@@ -151,56 +150,42 @@ Trader.prototype.getFee = function(callback) {
 };
 
 Trader.prototype.getTicker = function(callback) {
-  var setTicker = function(err, data) {
+  const handle = (err, data) => {
     if (err) return callback(err);
 
-    var result = data.result[this.pair];
-    var ticker = {
+    const result = data.result[this.pair];
+    const ticker = {
       ask: result.a[0],
       bid: result.b[0]
     };
     callback(undefined, ticker);
   };
 
-  let reqData = {pair: this.pair}
-
-  let handler = (cb) => this.kraken.api('Ticker', reqData, this.handleResponse('getTicker', cb));
-  util.retryCustom(retryForever, _.bind(handler, this), _.bind(setTicker, this));
+  const reqData = {pair: this.pair}
+  const fetch = cb => this.kraken.api('Ticker', reqData, this.handleResponse('getTicker', cb));
+  retry(null, fetch, handle);
 };
 
 Trader.prototype.roundAmount = function(amount) {
-  // Prevent "You incorrectly entered one of fields."
-  // because of more than 8 decimals.
-  // Specific precision by pair https://blog.kraken.com/post/1278/announcement-reducing-price-precision-round-2
+  return _.floor(amount, this.market.amountPrecision);
+};
 
-  var precision = 100000000;
-  var parent = this;
-  var market = Trader.getCapabilities().markets.find(function(market){ return market.pair[0] === parent.currency && market.pair[1] === parent.asset });
-
-  if(Number.isInteger(market.precision))
-    precision = Math.pow(10, market.precision);
-
-  amount *= precision;
-  amount = Math.floor(amount);
-  amount /= precision;
-  return amount;
+Trader.prototype.roundPrice = function(amount) {
+  return _.round(amount, this.market.pricePrecision);
 };
 
 Trader.prototype.addOrder = function(tradeType, amount, price, callback) {
   price = this.roundAmount(price); // only round price, not amount
 
-  log.debug('[kraken.js] (addOrder)', tradeType.toUpperCase(), amount, this.asset, '@', price, this.currency);
-
-  var setOrder = function(err, data) {
+  const handle = (err, data) => {
     if(err) return callback(err);
-    
-    var txid = data.result.txid[0];
-    log.debug('[kraken.js] (addOrder) added order with txid:', txid);
+
+    const txid = data.result.txid[0];
 
     callback(undefined, txid);
   };
 
-  let reqData = {
+  const reqData = {
     pair: this.pair,
     type: tradeType.toLowerCase(),
     ordertype: 'limit',
@@ -208,26 +193,9 @@ Trader.prototype.addOrder = function(tradeType, amount, price, callback) {
     volume: amount
   };
 
-  let handler = (cb) => this.kraken.api('AddOrder', reqData, this.handleResponse('addOrder', cb));
-  util.retryCustom(retryCritical, _.bind(handler, this), _.bind(setOrder, this));
+  const fetch = cb => this.kraken.api('AddOrder', reqData, this.handleResponse('addOrder', cb));
+  retry(null, fetch, handle);
 };
-
-
-Trader.prototype.getOrder = function(order, callback) {
-  var getOrder = function(err, data) {
-    if(err) return callback(err);
-
-    var price = parseFloat( data.result[ order ].price );
-    var amount = parseFloat( data.result[ order ].vol_exec );
-    var date = moment.unix( data.result[ order ].closetm );
-
-    callback(undefined, {price, amount, date});
-  };
-
-  let reqData = {txid: order};
-  let handler = (cb) => this.kraken.api('QueryOrders', reqData, this.handleResponse('getOrder', cb));
-  util.retryCustom(retryCritical, _.bind(handler, this), _.bind(getOrder, this));
-}
 
 Trader.prototype.buy = function(amount, price, callback) {
   this.addOrder('buy', amount, price, callback);
@@ -237,24 +205,82 @@ Trader.prototype.sell = function(amount, price, callback) {
   this.addOrder('sell', amount, price, callback);
 };
 
-Trader.prototype.checkOrder = function(order, callback) {
-  var check = function(err, data) {
+
+Trader.prototype.getOrder = function(order, callback) {
+  const handle = (err, data) => {
     if(err) return callback(err);
 
-    var result = data.result[order];
-    var stillThere = result.status === 'open' || result.status === 'pending';
-    callback(undefined, !stillThere);
+    const price = parseFloat( data.result[ order ].price );
+    const amount = parseFloat( data.result[ order ].vol_exec );
+    const date = moment.unix( data.result[ order ].closetm );
+
+    // TODO: figure out fees, kraken is reporting 0 fees:
+    // { 'OF6L2D-6LIKD-4OOHR7':
+    //   { refid: null,
+    //     userref: 0,
+    //     status: 'closed',
+    //     reason: null,
+    //     opentm: 1530694339.8116,
+    //     closetm: 1530694402.9572,
+    //     starttm: 0,
+    //     expiretm: 0,
+    //     descr: [Object],
+    //     vol: '0.00500000',
+    //     vol_exec: '0.00500000',
+    //     cost: '27.9',
+    //     fee: '0',
+    //     price: '5595.0',
+    //     stopprice: '0.00000',
+    //     limitprice: '0.00000',
+    //     misc: '',
+    //     oflags: 'fciq' } } }
+
+    callback(undefined, {price, amount, date});
   };
 
-  let reqData = {txid: order};
-  let handler = (cb) => this.kraken.api('QueryOrders', reqData, this.handleResponse('checkOrder', cb));
-  util.retryCustom(retryCritical, _.bind(handler, this), _.bind(check, this));
+  const reqData = {txid: order};
+
+  const fetch = cb => this.kraken.api('QueryOrders', reqData, this.handleResponse('getOrder', cb));
+  retry(null, fetch, handle);
+}
+
+Trader.prototype.checkOrder = function(order, callback) {
+  const handle = (err, data) => {
+    if(err) return callback(err);
+
+    const result = data.result[order];
+
+    callback(undefined, {
+      executed: result.vol === result.vol_exec,
+      open: result.status === 'open',
+      filledAmount: +result.vol_exec
+    });
+  };
+
+  const reqData = {txid: order};
+
+  const fetch = cb => this.kraken.api('QueryOrders', reqData, this.handleResponse('checkOrder', cb));
+  retry(null, fetch, handle);
 };
 
 Trader.prototype.cancelOrder = function(order, callback) {
-  let reqData = {txid: order};
-  let handler = (cb) => this.kraken.api('CancelOrder', reqData, this.handleResponse('cancelOrder', cb));
-  util.retryCustom(retryForever, _.bind(handler, this), callback);
+  const reqData = {txid: order};
+
+  const handle = (err, data) => {
+    if(err) {
+      if(err.message.includes('Unknown order')) {
+        console.log('[kraken] unable to cancel order, it did not exist anymore', order);
+        return callback(undefined, true);
+      }
+
+      return callback(err)
+    }
+
+    callback(undefined, false);
+  }
+
+  const fetch = cb => this.kraken.api('CancelOrder', reqData, this.handleResponse('cancelOrder', cb));
+  retry(null, fetch, handle);
 };
 
 Trader.getCapabilities = function () {

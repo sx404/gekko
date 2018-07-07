@@ -1,7 +1,7 @@
 {
   "name": "gekko",
-  "version": "0.6.0-alpha.0",
-  "description": "A crypto trading bot for auto trading at various exchanges",
+  "version": "0.6.1",
+  "description": "A bitcoin trading bot for auto trading at various exchanges",
   "keywords": [
     "trading",
     "bot",
@@ -37,7 +37,6 @@
     "koa-logger": "^1.3.0",
     "koa-router": "^5.4.0",
     "koa-static": "^2.0.0",
-    "kraken-api-es5": "^1.0.0",
     "lakebtc_nodejs": "0.1.x",
     "lodash": "2.x",
     "moment": "^2.22.2",

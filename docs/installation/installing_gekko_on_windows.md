@@ -1,5 +1,7 @@
 # Installing Gekko on windows
 
+*NOTE: unfortunately installing and managing Gekko is hard. You will need to touch the commandline and install a few developer tools. I am creating an official Gekko service called [Gekko Plus](https://gekkoplus.com/), it will NOT require any installation.*
+
 ### Note:
 #### Windows does not natively support TA-lib. We are currently working on implementing the Tulip Indicators Library, which will provide similar functionality (see [#708](https://github.com/askmike/gekko/issues/708)).
 #### For advanced users only: As a temporary workaround until [#708](https://github.com/askmike/gekko/issues/708) is implemented, TA-lib can be used on Windows through Bash on Windows 10. See "Installing Gekko on Windows with bash on Windows 10"
@@ -42,6 +44,11 @@ Install Gekko's dependencies:
 
     npm install --only=production
 
+Install Gekko Broker's dependencies:
+
+    cd exchange
+    npm install --only=production
+
 ### Install Tulip Indicators
 
 If you are using Windows you will need to install python and the VC++ 2015 build tool, the easiest way to do this is through node as an administrator:
@@ -61,3 +68,7 @@ Your browser should automatically open with the UI. If it doesn't, manually brow
 ### Stopping Gekko
 
 In the command line hold `ctrl` + `c`.
+
+### Updating Gekko
+
+See the [updating Gekko](./updating_gekko.md) doc.

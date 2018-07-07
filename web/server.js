@@ -1,4 +1,4 @@
-const config = require('./vue/public/UIconfig');
+const config = require('./vue/dist/UIconfig');
 
 const koa = require('koa');
 const serve = require('koa-static');
@@ -53,6 +53,7 @@ const ROUTE = n => WEBROOT + 'routes/' + n;
 
 // attach routes
 const apiKeys = require(ROUTE('apiKeys'));
+router.get('/api/info', require(ROUTE('info')));
 router.get('/api/strategies', require(ROUTE('strategies')));
 router.get('/api/configPart/:part', require(ROUTE('configPart')));
 router.get('/api/apiKeys', apiKeys.get);
@@ -69,7 +70,8 @@ router.post('/api/scansets', require(ROUTE('scanDatasets')));
 router.post('/api/backtest', require(ROUTE('backtest')));
 router.post('/api/import', require(ROUTE('import')));
 router.post('/api/startGekko', require(ROUTE('startGekko')));
-router.post('/api/killGekko', require(ROUTE('killGekko')));
+router.post('/api/stopGekko', require(ROUTE('stopGekko')));
+router.post('/api/deleteGekko', require(ROUTE('deleteGekko')));
 router.post('/api/getCandles', require(ROUTE('getCandles')));
 
 
@@ -80,7 +82,7 @@ router.post('/api/getCandles', require(ROUTE('getCandles')));
 
 app
   .use(cors())
-  .use(serve(WEBROOT + 'vue'))
+  .use(serve(WEBROOT + 'vue/dist'))
   .use(bodyParser())
   .use(require('koa-logger')())
   .use(router.routes())
