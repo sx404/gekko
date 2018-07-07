@@ -449,7 +449,7 @@ config.backtest = {
    from: "2018-06-01",
 //   to: "2018-04-28"
 //},
-  batchSize: 50
+  batchSize: 1000
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -459,7 +459,7 @@ config.backtest = {
 config.importer = {
   daterange: {
     // NOTE: these dates are in UTC
-    from: "2018-06-01 00:00:00"
+    from: "2018-01-01 00:00:00"
     //to: "2017-11-20 00:00:00"
   }
 }
