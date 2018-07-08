@@ -17,6 +17,12 @@ Crypto Trading Bot based on askmike/gekko v0.6
 - cd ..
 - npm start
 
+from time to time the exchange markets should be updated with a utility - to get new coin pairs:
+
+- cd exchange/util/genMarketFiles/
+- node update-kraken.js
+- node update-binance.js
+
 (postgresql experience required to previously setup postgres. Sample config assumes an existing db user gekkodbuser, pass 1234, with added role permission to createdb. PostgreSQL 9.5+ required.)
 
 ## Documentation
