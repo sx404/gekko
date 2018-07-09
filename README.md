@@ -1,10 +1,13 @@
 # Gekko [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
-Crypto Trading Bot based on askmike/gekko v0.6
+Crypto Trading Bot based on askmike/gekko v0.6.x
 
 - Use postgresql DB as default db to prevent sqlite lock scenarios
   - Rewritten postgres plugin, using connection pooling and transaction safe candle writing (Postgres 9.5+ required)
-- Added hitbtc exchange based on v2 API and ccxt library (not yet ported from v0.5 to v0.6)
+- Added hitbtc exchange based on v2 API and ccxt library (and ported to current Gekko v0.6 event sytstem)
+- Extended log output
+  - mailer.js informs with buy and sell events by mail (different to go short/long advices)
+  - More info during paper trader backtesting
 - Added often used package dependencies by default to get started quickly (npm install)
 
 ## Getting started
