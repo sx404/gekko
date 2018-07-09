@@ -27,6 +27,7 @@ const Trader = function(config) {
     this.asset = config.asset;
   }
   this.name = 'HitBTC';
+  this.since = null;
   
   this.balance;
   this.price;
@@ -49,6 +50,14 @@ const Trader = function(config) {
         console.log('error loading markets : ' + this.name + '-' + this.exchangeName , e);
      }
      retFlag = true;
+
+     this.market = _.find(Trader.getCapabilities().markets, (market) => {
+       return market.pair[0] === this.currency && market.pair[1] === this.asset
+     });
+
+     /*
+     this.pair = this.market.book;
+     */
   }) ();
   deasync.loopWhile(function(){return !retFlag;});
 }
@@ -241,11 +250,11 @@ Trader.prototype.getTrades = function(since, callback, descending) {
   
   let handler = (cb) => processAttempt(this.ccxt, this.pair, since, this.handleResponse('getTrades', cb));
   //util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResult, this));  	
-  retry(null, handler, processResult);
+  retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 
-Trader.prototype.Portfolio = function(callback) {
+Trader.prototype.getPortfolio = function(callback) {
 
   var processAttempt = function(ccxt, cb) {
      
@@ -262,6 +271,7 @@ Trader.prototype.Portfolio = function(callback) {
   
   var processResult = function (err, data){
 	 if(err) return callback(err);
+
 	 var assetAmount = data[this.asset]['free'];
 	 var currencyAmount = data[this.currency]['free'];
      
@@ -286,7 +296,7 @@ Trader.prototype.Portfolio = function(callback) {
   
   let handler = (cb) => processAttempt(this.ccxt, this.handleResponse('getPortfolio', cb));
   //util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResult, this));
-  retry(null, handler, processResult);  
+  retry(null, _.bind(handler, this), _.bind(processResult, this));  
 }
 
 
@@ -332,7 +342,7 @@ Trader.prototype.getTicker = function(callback) {
   
   let handler = (cb) => processAttempt(this.ccxt, this.pair, this.handleResponse('getTicker', cb));
   //util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResult, this));
-  retry(null, handler, processResult);
+  retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 //addOrder buy
@@ -397,7 +407,7 @@ Trader.prototype.buy = function(amount, price, callback) {
 	  
   let handler = (cb) => processAttempt(this.ccxt, amount, price, this.pair, this.handleResponse('buy', cb));
   //util.retryCustom(retryCritical, _.bind(handler, this), _.bind(processResult, this));
-  retry(null, handler, processResult);
+  retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 
@@ -462,7 +472,7 @@ Trader.prototype.sell = function(amount, price, callback) {
 	  
   let handler = (cb) => processAttempt(this.ccxt, amount, price, this.pair, this.handleResponse('sell', cb));
   //util.retryCustom(retryCritical, _.bind(handler, this), _.bind(processResult, this));
-  retry(null, handler, processResult);
+  retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 
@@ -506,7 +516,7 @@ Trader.prototype.getOrder = function(order, callback) {
 	  
   let handler = (cb) => processAttempt(this.ccxt, this.pair, order, this.handleResponse('getOrder', cb));
   //util.retryCustom(retryCritical, _.bind(handler, this), _.bind(processResult, this));
-  retry(null, handler, processResult); 	
+  retry(null, _.bind(handler, this), _.bind(processResult, this)); 	
 }
 
 
@@ -537,7 +547,7 @@ Trader.prototype.checkOrder = function(order, callback) {
 	  
   let handler = (cb) => processAttempt(this.ccxt, order, this.pair, this.handleResponse('checkOrder', cb));
   //util.retryCustom(retryCritical, _.bind(handler, this), _.bind(processResult, this));
-  retry(null, handler, processResult);
+  retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 
@@ -569,7 +579,7 @@ Trader.prototype.cancelOrder = function(order, callback) {
   
   let handler = (cb) => processAttempt(this.ccxt, this.handleResponse('cancelOrder', cb));
   //util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResult, this));
-  retry(null, handler, processResult);
+  retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 
@@ -648,7 +658,8 @@ Trader.getCapabilities = function () {
                 tid: 'tid',
                 providesHistory: 'date',
                 providesFullHistory: Trader.fetchTrades ? true : false,
-                tradable: Trader.hasPrivateAPI ? true : false,  
+                tradable: Trader.hasPrivateAPI ? true : false,
+                gekkoBroker: 0.6,
              };
              ret.push(capabilities);
           }
@@ -719,7 +730,8 @@ Trader.getCapabilities = function () {
              tid: 'tid',
              providesHistory: 'date',
              providesFullHistory: Trader.fetchTrades ? true : false,
-             tradable: Trader.hasPrivateAPI ? true : false,  
+             tradable: Trader.hasPrivateAPI ? true : false,
+             gekkoBroker: 0.6,  
           };
        };
        return capabilities;
