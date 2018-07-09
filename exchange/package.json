@@ -32,5 +32,9 @@
     "poloniex.js": "git://github.com/askmike/poloniex.js.git#69f5e254353e66d135070844fc3328efcbe3641c",
     "request-promise": "^4.2.2",
     "retry": "^0.12.0"
+  },
+  "devDependencies": {
+    "ccxt": "^1.15.28",
+    "deasync": "^0.1.13"
   }
 }

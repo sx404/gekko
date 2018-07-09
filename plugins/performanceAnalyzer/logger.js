@@ -66,7 +66,7 @@ if(mode === 'backtest') {
     if(trade.action === 'sell')
 
         log.info(
-          `${at}: Paper trader simulated a SELL`,
+          `${at}: Paper trader simulated a SELL @${trade.price}`,
           `\t${this.round(trade.portfolio.currency)}`,
           `${this.currency} <= ${this.round(trade.portfolio.asset)}`,
           `${this.asset}`
@@ -75,7 +75,7 @@ if(mode === 'backtest') {
     else if(trade.action === 'buy')
 
       log.info(
-        `${at}: Paper trader simulated a BUY`,
+        `${at}: Paper trader simulated a BUY @${trade.price}`,
         `\t${this.round(trade.portfolio.currency)}`,
         `${this.currency}\t=> ${this.round(trade.portfolio.asset)}`,
         `${this.asset}`
