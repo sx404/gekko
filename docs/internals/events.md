@@ -14,9 +14,13 @@ Note that all events from Gekko come from a plugin (with the exception of the `c
 - [stratWarmupCompleted](#stratWarmupCompleted-event): When the strategy is done warming up.
 - [advice](#advice-event): Every time the trading strategy is fed a new candle.
 - [stratUpdate](#stratUpdate-event): Every time the strategy has processed a new strat candle.
+- [stratNotification](#stratNotification-event): Every time the strategy emit new strategy notification.
 - [tradeInitiated](#tradeInitiated-event): Every time a trading plugin (either the live trader or the paper trader) is going to start a new trade (buy or sell).
 - [tradeCompleted](#tradeCompleted-event): Every time a trading plugin (either the live trader or the paper trader) has completed a trade.
-- [tradeAborted](#tradeAborted-event): Every time a trading plugin (either the live trader or the paper trader) has NOT acted on new advice (due to unsufficiant funds or a similar reason).
+- [tradeAborted](#tradeAborted-event): Every time a trading plugin (either the live trader or the paper 
+trader) has NOT acted on new advice (due to unsufficiant funds or a similar reason).
+- [tradeErrored](#tradeErrored-event): Every time the live trader was unable to execute an initialized.
+- [tradeCancelled](#tradeCancelled-event): Every time the live trader cancelled a not yet executed trade.
 - [portfolioChange](#portfolioChange-event): Every time the content of the portfolio has changed.
 - [portfolioValueChange](#portfolioValueChange-event): Every time value of the portfolio has changed.
 - [performanceReport](#performanceReport-event): Every time the profit report was updated.
@@ -98,6 +102,18 @@ and will start signaling advice.
         }
       }
 
+### stratNotification event
+
+- What: An object describing new notification from your strategy
+- When: when the strategy emit using `this.notify()` function
+- Subscribe: You can subscribe to this event by registering the `stratNotification` method.
+- Example:
+      {
+        date: [moment object of the start time of the candle],
+        content: [String content notification in strategy]
+      }
+
+
 ### advice event
 
 - What: An advice from the strategy, the advice will either be LONG or SHORT.
@@ -139,16 +155,27 @@ and will start signaling advice.
         reason: [string explaining why the trade was aborted]
       }
 
-### tradeCanceled event
+### tradeCancelled event
 
 - What: An object singaling the fact that the a trade orginially initiated was now cancelled
-- When: At the same time as the advice event if the trader will NOT try to trade.
-- Subscribe: You can subscribe to this event by registering the `processTradeCanceled` method.
+- When: After a receiving a tradeInitiated event and than a advice event (without a tradeCompleted event between them).
+- Subscribe: You can subscribe to this event by registering the `processTradeCancelled` method.
 - Example:
       {
         id: [string identifying this unique trade],
         adviceId: [number specifying the advice id this trade is based on],
-        action: [either "buy" or "sell"],
+        date: [moment object, exchange time trade completed at]
+      }
+
+### tradeErrored event
+
+- What: An object singaling the fact that the a trade orginially initiated was now cancelled
+- When: After a tradeInitiated event
+- Subscribe: You can subscribe to this event by registering the `processTradeErrored` method.
+- Example:
+      {
+        id: [string identifying this unique trade],
+        adviceId: [number specifying the advice id this trade is based on],
         date: [moment object, exchange time trade completed at],
         reason: [string explaining why the trade was aborted]
       }
