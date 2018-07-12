@@ -27,24 +27,6 @@
 //    properly when some events wont be emitted.
 var plugins = [
   {
-    name: 'Candle writer',
-    description: 'Store candles in a database',
-    slug: 'candleWriter',
-    async: true,
-    modes: ['realtime', 'importer'],
-    path: config => config.adapter + '/writer',
-    version: 0.1,
-  },
-  {
-    name: 'Trading Advisor',
-    description: 'Calculate trading advice',
-    slug: 'tradingAdvisor',
-    async: true,
-    modes: ['realtime', 'backtest'],
-    emits: ['advice', 'stratWarmupCompleted', 'stratCandle', 'stratUpdate'],
-    path: config => 'tradingAdvisor/tradingAdvisor.js',
-  },
-  {
     name: 'IRC bot',
     description: 'IRC module lets you communicate with Gekko on IRC.',
     slug: 'ircbot',
@@ -61,9 +43,10 @@ var plugins = [
     slug: 'telegrambot',
     async: false,
     modes: ['realtime'],
+    emits: ['advice'],
     dependencies: [{
       module: 'node-telegram-bot-api',
-      version: '0.24.0'
+      version: '0.30.0'
     }]
   },
   {
@@ -216,6 +199,24 @@ var plugins = [
     async: false,
     modes: ['realtime'],
     greedy: true
+  },
+  {
+    name: 'Candle writer',
+    description: 'Store candles in a database',
+    slug: 'candleWriter',
+    async: true,
+    modes: ['realtime', 'importer'],
+    path: config => config.adapter + '/writer',
+    version: 0.1,
+  },
+  {
+    name: 'Trading Advisor',
+    description: 'Calculate trading advice',
+    slug: 'tradingAdvisor',
+    async: true,
+    modes: ['realtime', 'backtest'],
+    emits: ['advice', 'stratWarmupCompleted', 'stratCandle', 'stratUpdate'],
+    path: config => 'tradingAdvisor/tradingAdvisor.js',
   }
 ];
 

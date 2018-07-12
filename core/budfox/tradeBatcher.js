@@ -72,7 +72,8 @@ TradeBatcher.prototype.write = function(batch) {
     'UTC to',
     last.date.format('YYYY-MM-DD HH:mm:ss'),
     'UTC.',
-    '(' + first.date.from(last.date, true) + ')'
+    '(' + first.date.from(last.date, true) + ').',
+    'Last price: ' + last.price
   );
 
   this.emit('new batch', {

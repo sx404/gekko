@@ -32,7 +32,16 @@ Reader.prototype.mostRecentWindow = function(from, to, next) {
           return next(false);
 
         log.error(err);
-        return util.die('DB error while reading mostRecentWindow');
+
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        const waitNdie = async function() {
+          await sleep(1000);
+          return util.die('DB error while reading mostRecentWindow');
+        }
+        waitNdie();
       }
     });
 

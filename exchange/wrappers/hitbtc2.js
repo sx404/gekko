@@ -345,55 +345,112 @@ Trader.prototype.getTicker = function(callback) {
   retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
+
+Trader.prototype.roundAmount = function(amount) {
+  var roundAmount;
+  var fee;
+  var calculateFee;
+
+  //getFee
+  try{
+    fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
+    if(!_.isNumber(fee) || _.isNaN(fee)){
+      fee = 0.0025; //default
+    }
+  }
+  catch(e) {
+    fee = 0.0025; //default
+  }	   
+
+  //Calculate fee
+  try{
+    calculateFee = (amount * fee);
+  }
+  catch(e) {
+    calculateFee = 0;
+  }
+
+  try {
+    roundAmount = ccxt.amountToLots(pair, (amount - calculateFee));
+  }
+  catch(e) {
+    try{
+      roundAmount = ccxt.amountToPrecision(pair, (amount - calculateFee));
+    }catch(e){
+      roundAmount = (amount - calculateFee);
+    }           
+  }
+
+  return roundAmount;
+}
+
+
+Trader.prototype.roundPrice = function(price) {
+  var roundPrice;
+
+  try{
+    roundPrice = ccxt.priceToPrecision(this.pair, price);
+  }catch(e){
+    roundPrice = price;
+  }
+
+  return roundPrice;
+}
+
+
+
 //addOrder buy
 Trader.prototype.buy = function(amount, price, callback) {
 
-   var processAttempt = function(ccxt, amount, price, pair, cb) {
+   var processAttempt = function(ccxt, roundAmount, roundPrice, pair, cb) {
      
      (async () => {
-	   //getFee
-	   try{
-		  var fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
-		  if(!_.isNumber(fee) || _.isNaN(fee)){
-			 fee = 0.0025; //default
-		  }
-	   }catch(e){
-		  var fee = 0.0025; //default
-	   }	   
+                //getFee
+                /*
+                try{
+                  var fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
+                  if(!_.isNumber(fee) || _.isNaN(fee)){
+                  fee = 0.0025; //default
+                  }
+                }catch(e){
+                  var fee = 0.0025; //default
+                }	   
 
-	   //Calculate fee
-	   try{
-		 var calculateFee = (amount * fee);
-	   }catch(e){
-		  var calculateFee = 0;
-	   }
-	   //Round amount
-       try{
-         var roundAmount = ccxt.amountToLots(pair, (amount - calculateFee));
-       }catch(e){
-           try{
-             var roundAmount = ccxt.amountToPrecision(pair, (amount - calculateFee));
-          }catch(e){
-             var roundAmount = (amount - calculateFee);
-          }           
-       }
-       //Round price
-       try{
-          var roundPrice = ccxt.priceToPrecision(pair, price);
-       }catch(e){
-          var roundPrice = price;
-       }     
+                //Calculate fee
+                try{
+                var calculateFee = (amount * fee);
+                }catch(e){
+                  var calculateFee = 0;
+                }
+                //Round amount
+                  try{
+                    var roundAmount = ccxt.amountToLots(pair, (amount - calculateFee));
+                  }catch(e){
+                      try{
+                        var roundAmount = ccxt.amountToPrecision(pair, (amount - calculateFee));
+                      }catch(e){
+                        var roundAmount = (amount - calculateFee);
+                      }           
+                  }
+                  //Round price
+                  try{
+                      var roundPrice = ccxt.priceToPrecision(pair, price);
+                  }catch(e){
+                      var roundPrice = price;
+                  }  
+                  */   
        
-       console.log('(buy) Rounded price and amount are : ', roundAmount, 'at', roundPrice, 'with', calculateFee, 'fees', '(', pair, ')'); 
+       //console.log('(buy) Rounded price and amount are : ', roundAmount, 'at', roundPrice, 'with', calculateFee, 'fees', '(', pair, ')'); 
        
 	   try{
 		   data = await ccxt.createLimitBuyOrder (pair, roundAmount, roundPrice);
 		   cb(undefined, data);
-       }catch(e){
-		  console.log(e);
-	      cb(e);
-       }
-     }) ();
+     }
+     catch(e){
+		   console.log(e);
+	     cb(e);
+     }
+   }) ();
   };
   
   var processResult = function (err, data){
@@ -412,42 +469,44 @@ Trader.prototype.buy = function(amount, price, callback) {
 
 
 Trader.prototype.sell = function(amount, price, callback) {
-   var processAttempt = function(ccxt, amount, price, pair, cb) {
+   var processAttempt = function(ccxt, roundAmount, roundPrice, pair, cb) {
      
      (async () => {
-	   //getFee
-	   try{
-		  var fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
-		  if(!_.isNumber(fee) || _.isNaN(fee)){
-			 fee = 0.0025; //% default
-		  }
-	   }catch(e){
-		  var fee = 0.0025; //% default
-	   }	
-	   //Calculate fee
-	   try{
-		 var calculateFee = (amount * fee);
-	   }catch(e){
-		  var calculateFee = 0;
-	   }
-	   //Round amount
-       try{
-         var roundAmount = ccxt.amountToLots(pair, (amount - calculateFee));
-       }catch(e){
-           try{
-             var roundAmount = ccxt.amountToPrecision(pair, (amount - calculateFee));
-          }catch(e){
-             var roundAmount = (amount - calculateFee);
-          }           
-       }
-       //Round price
-       try{
-          var roundPrice = ccxt.priceToPrecision(pair, price);
-       }catch(e){
-          var roundPrice = price;
-       }     
+                  //getFee
+                  /*
+                  try{
+                    var fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
+                    if(!_.isNumber(fee) || _.isNaN(fee)){
+                    fee = 0.0025; //% default
+                    }
+                  }catch(e){
+                    var fee = 0.0025; //% default
+                  }	
+                  //Calculate fee
+                  try{
+                  var calculateFee = (amount * fee);
+                  }catch(e){
+                    var calculateFee = 0;
+                  }
+                  //Round amount
+                    try{
+                      var roundAmount = ccxt.amountToLots(pair, (amount - calculateFee));
+                    }catch(e){
+                        try{
+                          var roundAmount = ccxt.amountToPrecision(pair, (amount - calculateFee));
+                        }catch(e){
+                          var roundAmount = (amount - calculateFee);
+                        }           
+                    }
+                    //Round price
+                    try{
+                        var roundPrice = ccxt.priceToPrecision(pair, price);
+                    }catch(e){
+                        var roundPrice = price;
+                    }
+                    */     
        
-       console.log('(sell) Rounded price and amount are : ', roundAmount, 'at', roundPrice, 'with', calculateFee, 'fees', '(', pair, ')'); 
+                    //console.log('(sell) Rounded price and amount are : ', roundAmount, 'at', roundPrice, 'with', calculateFee, 'fees', '(', pair, ')'); 
        
 	   try{
 		   data = await ccxt.createLimitSellOrder (pair, roundAmount, roundPrice);
