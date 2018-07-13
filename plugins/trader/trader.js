@@ -12,9 +12,6 @@ if(config.trader.enabled && config.paperTrader.enabled) {
   util.die('You can not run Gekko in realtime mode with both \"Paper Trader\" AND \"Trader\" enabled.')
 }
 
-if(config.tradingAdvisor.enabled && !config.paperTrader.enabled)
-  util.die('You need to enable the \"Paper Trader\" first to run a backtest.')
-
 const Trader = function(next) {
 
   this.brokerConfig = {
