@@ -12,9 +12,11 @@
             "runtimeArgs": [
                 "gekko.js",
                 "--config",
-                "config-bez.js"                
+                "config-mtc.js"                
             ],
             "protocol": "inspector",
+            "timeout": 300000,
+            "port": 9229
             "cwd": "${workspaceRoot}"
         },
         {
