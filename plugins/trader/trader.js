@@ -138,7 +138,7 @@ Trader.prototype.processAdvice = function(advice) {
       });
     }
 
-    amount = this.portfolio.currency / this.price * 0.95;
+    amount = this.portfolio.currency / this.price;// * 0.95;
 
     if(amount < this.broker.marketConfig.minimalOrder.amount) {
       log.info('NOT buying, not enough', this.brokerConfig.currency);
@@ -161,7 +161,7 @@ Trader.prototype.processAdvice = function(advice) {
   } else if(direction === 'sell') {
 
     if(!this.exposed) {
-      log.info('NOT selling, already no exposure');
+      log.info('NOT selling, no exposure');
       return this.deferredEmit('tradeAborted', {
         id,
         adviceId: advice.id,
@@ -172,7 +172,7 @@ Trader.prototype.processAdvice = function(advice) {
       });
     }
 
-    amount = this.portfolio.asset * 0.95;
+    amount = this.portfolio.asset; //* 0.95;
 
     if(amount < this.broker.marketConfig.minimalOrder.amount) {
       log.info('NOT selling, not enough', this.brokerConfig.currency);
@@ -208,7 +208,8 @@ Trader.prototype.createOrder = function(side, amount, advice, id) {
     portfolio: this.portfolio,
     balance: this.balance
   });
-
+console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+console.log(amount);
   this.order = this.broker.createOrder(type, side, amount);
 
   this.order.on('filled', f => log.debug('[ORDER] partial', side, ' fill, total filled:', f));
