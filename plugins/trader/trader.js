@@ -7,6 +7,14 @@ const moment = require('moment');
 const log = require(dirs.core + 'log');
 const Broker = require(dirs.gekko + '/exchange/gekkoBroker');
 
+if(config.trader.enabled && config.paperTrader.enabled) {
+  //this can only happen in realtime mode - during backtest the trader is disabled by design
+  util.die('You can not run Gekko in realtime mode with both \"Paper Trader\" AND \"Trader\" enabled.')
+}
+
+if(config.tradingAdvisor.enabled && !config.paperTrader.enabled)
+  util.die('You need to enable the \"Paper Trader\" first to run a backtest.')
+
 const Trader = function(next) {
 
   this.brokerConfig = {
