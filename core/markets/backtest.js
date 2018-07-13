@@ -15,7 +15,7 @@ var from = moment.utc(daterange.from);
 if(to <= from)
   util.die('This daterange does not make sense.')
 
-if(config.tradingAdvisor.enabled && !config.paperTrader.enabled)
+if(!config.paperTrader.enabled)
   util.die('You need to enable the \"Paper Trader\" first to run a backtest.')
 
 if(!from.isValid())
