@@ -2,12 +2,9 @@ const Ccxt = require('ccxt');
 const ccxtError = require('../node_modules/ccxt/js/base/errors.js');
 
 const deasync = require('deasync');
-
-//var util = require('../core/util.js');
-//var Errors = require('../core/error');
+const Errors = require('../exchangeErrors');
 const _ = require('lodash');
 const moment = require('moment');
-//var log = require('../core/log');
 const retry = require('../exchangeUtils').retry;
 
 process.on ('uncaughtException',  e => { console.log (e); process.exit (1) })
@@ -31,10 +28,9 @@ const Trader = function(config) {
   
   this.balance;
   this.price;
+  //this.interval = 3000;
 
   this.pair = [this.asset, this.currency].join('/');
-
-  //var exchange = config.exchange.toLowerCase().substr(5);
   var exchange = 'hitbtc2';
 
   this.ccxt = new Ccxt[exchange]({apiKey: this.key, secret: this.secret, uid:this.username, password: this.passphrase});
@@ -50,15 +46,10 @@ const Trader = function(config) {
         console.log('error loading markets : ' + this.name + '-' + this.exchangeName , e);
      }
      retFlag = true;
-
-     /*
-     this.market = _.find(Trader.getCapabilities().markets, (market) => {
-       return market.pair[0] === this.currency && market.pair[1] === this.asset
+     
+     this.market = _.find(Trader.getCapabilities().markets, (p) => {
+       return _.first(p.pair) === this.currency && _.last(p.pair) === this.asset;
      });
-    */
-     /*
-     this.pair = this.market.book;
-     */
   }) ();
   deasync.loopWhile(function(){return !retFlag;});
 }
@@ -83,21 +74,6 @@ const includes = (str, list) => {
   return _.some(list, item => str.includes(item));
 }
 
-/*
-var retryCritical = {
-  retries: 10,
-  factor: 1.2,
-  minTimeout: 1 * 1000,
-  maxTimeout: 30 * 1000
-};
-
-var retryForever = {
-  forever: true,
-  factor: 1.2,
-  minTimeout: 10,
-  maxTimeout: 30
-};
-*/
 
 /** CCXT Error
 ExchangeError -> Retry
@@ -113,6 +89,7 @@ NetworkError -> Retry
 DDoSProtection -> Retry
 RequestTimeout -> Retry
 ExchangeNotAvailable-> Retry
+*/
 
 Trader.prototype.processError = function(funcName, error) {
   if (!error) return undefined;
@@ -172,31 +149,6 @@ Trader.prototype.handleResponse = function(funcName, callback) {
     }
 
     return callback(this.processError(funcName, error), body);
-  }
-};
-*/
-
-Trader.prototype.handleResponse = function(funcName, callback) {
-  return (error, body) => {
-
-    if(!error && !body) {
-      error = new Error('Empty response');
-    }
-
-    if(error) {
-      if(includes(error.message, recoverableErrors)) {
-        error.notFatal = true;
-      }
-
-      if(includes(error.message, ['Rate limit exceeded'])) {
-        error.notFatal = true;
-        error.backoffDelay = 1000;
-      }
-
-      return callback(error);
-    }
-
-    return callback(undefined, body);
   }
 };
 
@@ -296,7 +248,6 @@ Trader.prototype.getPortfolio = function(callback) {
   };
   
   let handler = (cb) => processAttempt(this.ccxt, this.handleResponse('getPortfolio', cb));
-  //util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResult, this));
   retry(null, _.bind(handler, this), _.bind(processResult, this));  
 }
 
@@ -305,14 +256,15 @@ Trader.prototype.getFee = function(callback) {
    //getFee is WIP ccxt side 
    //See https://github.com/ccxt/ccxt/issues/640
    /*
-   try{
+   try {
       var fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
       if(!_.isNumber(fee) || _.isNaN(fee)){
-         fee = 0.0025; //default
+         fee = 0; //default
       }
-   }catch(e){
-      var fee = 0.0025; //default
-   }*/
+   } catch(e){
+      var fee = 0; //default
+   }
+   */
    var fee = 0;
    callback(undefined, fee);
 }
@@ -326,7 +278,7 @@ Trader.prototype.getTicker = function(callback) {
           data = await ccxt.fetchTicker(pair);
 	      cb(undefined, data);
        }catch(e){
-		  console.log(e);
+		    console.log(e);
 	      cb(e);
        }
 	 }) ();
@@ -334,75 +286,90 @@ Trader.prototype.getTicker = function(callback) {
   
   var processResult = function (err, data){
 	 if(err) return callback(err);
-	 console.log('ask', parseFloat(data['ask']), 'bid', parseFloat(data['bid']));
 	 
-	 console.log('[ccxt-' + this.exchangeName + '] (getTicker) ask', parseFloat(data['ask']), 'bid', parseFloat(data['bid']));
-     callback(undefined, {
-	    bid: parseFloat(data['bid']),
-	    ask: parseFloat(data['ask']),
-     });
+   //console.log('ask', parseFloat(data['ask']), 'bid', parseFloat(data['bid']));
+	 //console.log('[ccxt-' + this.exchangeName + '] (getTicker) ask', parseFloat(data['ask']), 'bid', parseFloat(data['bid']));
+   callback(undefined, {
+     bid: parseFloat(data['bid']),
+     ask: parseFloat(data['ask']),
+   });
   }
   
   let handler = (cb) => processAttempt(this.ccxt, this.pair, this.handleResponse('getTicker', cb));
-  //util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResult, this));
   retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 
-Trader.prototype.roundAmount = function(amount) {
-  console.log('llllllllllllllllllllllllllll');
-  console.log(amount);
-  var roundAmount;
-  var fee;
-  var calculateFee;
-return amount;
-  //getFee
-  try{
-    fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
-    if(!_.isNumber(fee) || _.isNaN(fee)){
-      fee = 0.0025; //default
+// Effectively counts the number of decimal places, so 0.001 or 0.234 results in 3
+Trader.prototype.getPrecision = function(tickSize) {
+  if (!isFinite(tickSize)) return 0;
+  var e = 1, p = 0;
+  while (Math.round(tickSize * e) / e !== tickSize) { e *= 10; p++; }
+  return p;
+};
+
+
+Trader.prototype.round = function(amount, tickSize) {
+  var precision = 100000000;
+  var t = this.getPrecision(tickSize);
+
+  if(Number.isInteger(t))
+    precision = Math.pow(10, t);
+
+  amount *= precision;
+  amount = Math.floor(amount);
+  amount /= precision;
+
+  // https://gist.github.com/jiggzson/b5f489af9ad931e3d186
+  amount = this.scientificToDecimal(amount);
+
+  return amount;
+};
+
+
+// https://gist.github.com/jiggzson/b5f489af9ad931e3d186
+Trader.prototype.scientificToDecimal = function(num) {
+  if(/\d+\.?\d*e[\+\-]*\d+/i.test(num)) {
+    const zero = '0';
+    const parts = String(num).toLowerCase().split('e'); // split into coeff and exponent
+    const e = parts.pop(); // store the exponential part
+    const l = Math.abs(e); // get the number of zeros
+    const sign = e/l;
+    const coeff_array = parts[0].split('.');
+    if(sign === -1) {
+      num = zero + '.' + new Array(l).join(zero) + coeff_array.join('');
+    } else {
+      const dec = coeff_array[1];
+      if(dec) {
+        l = l - dec.length;
+      }
+      num = coeff_array.join('') + new Array(l+1).join(zero);
     }
-  }
-  catch(e) {
-    fee = 0.0025; //default
-  }	   
-
-  //Calculate fee
-  try{
-    calculateFee = (amount * fee);
-  }
-  catch(e) {
-    calculateFee = 0;
+  } else {
+    // make sure we always cast to string
+    num = num + '';
   }
 
-  try {
-    roundAmount = ccxt.amountToLots(pair, (amount - calculateFee));
-  }
-  catch(e) {
-    try{
-      roundAmount = ccxt.amountToPrecision(pair, (amount - calculateFee));
-    }catch(e){
-      roundAmount = (amount - calculateFee);
-    }           
-  }
+  return num;
+}
 
-  return roundAmount;
+
+Trader.prototype.roundAmount = function(amount) {
+  return this.round(amount, this.market.minimalOrder.amount);
 }
 
 
 Trader.prototype.roundPrice = function(price) {
+  //return this.round(price, this.market.minimalOrder.price);
   var roundPrice;
-console.log('ppppppppppppppppppppppppppppppppppppppppppppppppppp');
-console.log(price);
-  try{
-    roundPrice = ccxt.priceToPrecision(this.pair, price);
-  }catch(e){
-    roundPrice = price;
-  }
-console.log(roundPrice);
-  return roundPrice;
+    try{
+      roundPrice = ccxt.priceToPrecision(this.pair, price);
+    }catch(e){
+      roundPrice = price;
+    }
+  console.log(roundPrice);
+    return roundPrice;
 }
-
 
 
 //addOrder buy
@@ -410,53 +377,16 @@ Trader.prototype.buy = function(amount, price, callback) {
 
    var processAttempt = function(ccxt, roundAmount, roundPrice, pair, cb) {
      
-     (async () => {
-                //getFee
-                /*
-                try{
-                  var fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
-                  if(!_.isNumber(fee) || _.isNaN(fee)){
-                  fee = 0.0025; //default
-                  }
-                }catch(e){
-                  var fee = 0.0025; //default
-                }	   
-
-                //Calculate fee
-                try{
-                var calculateFee = (amount * fee);
-                }catch(e){
-                  var calculateFee = 0;
-                }
-                //Round amount
-                  try{
-                    var roundAmount = ccxt.amountToLots(pair, (amount - calculateFee));
-                  }catch(e){
-                      try{
-                        var roundAmount = ccxt.amountToPrecision(pair, (amount - calculateFee));
-                      }catch(e){
-                        var roundAmount = (amount - calculateFee);
-                      }           
-                  }
-                  //Round price
-                  try{
-                      var roundPrice = ccxt.priceToPrecision(pair, price);
-                  }catch(e){
-                      var roundPrice = price;
-                  }  
-                  */   
-       
-       //console.log('(buy) Rounded price and amount are : ', roundAmount, 'at', roundPrice, 'with', calculateFee, 'fees', '(', pair, ')'); 
-       
-	   try{
-		   data = await ccxt.createLimitBuyOrder (pair, roundAmount, roundPrice);
-		   cb(undefined, data);
-     }
-     catch(e){
-		   console.log(e);
-	     cb(e);
-     }
-   }) ();
+     (async () => {          
+        try{
+          data = await ccxt.createLimitBuyOrder (pair, roundAmount, roundPrice);
+          cb(undefined, data);
+        }
+        catch(e){
+          console.log(e);
+          cb(e);
+        }
+     }) ();
   };
   
   var processResult = function (err, data){
@@ -469,68 +399,27 @@ Trader.prototype.buy = function(amount, price, callback) {
   };	  
 	  
   let handler = (cb) => processAttempt(this.ccxt, amount, price, this.pair, this.handleResponse('buy', cb));
-  //util.retryCustom(retryCritical, _.bind(handler, this), _.bind(processResult, this));
   retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 
 Trader.prototype.sell = function(amount, price, callback) {
-   console.log('*************************************+++');
-     console.log(amount);
-     console.log(price);
-
    var processAttempt = function(ccxt, roundAmount, roundPrice, pair, cb) {
      (async () => {
-                  //getFee
-                  /*
-                  try{
-                    var fee = parseFloat(this.ccxt.markets[this.pair]['maker']);
-                    if(!_.isNumber(fee) || _.isNaN(fee)){
-                    fee = 0.0025; //% default
-                    }
-                  }catch(e){
-                    var fee = 0.0025; //% default
-                  }	
-                  //Calculate fee
-                  try{
-                  var calculateFee = (amount * fee);
-                  }catch(e){
-                    var calculateFee = 0;
-                  }
-                  //Round amount
-                    try{
-                      var roundAmount = ccxt.amountToLots(pair, (amount - calculateFee));
-                    }catch(e){
-                        try{
-                          var roundAmount = ccxt.amountToPrecision(pair, (amount - calculateFee));
-                        }catch(e){
-                          var roundAmount = (amount - calculateFee);
-                        }           
-                    }
-                    //Round price
-                    try{
-                        var roundPrice = ccxt.priceToPrecision(pair, price);
-                    }catch(e){
-                        var roundPrice = price;
-                    }
-                    */     
-       
-                    //console.log('(sell) Rounded price and amount are : ', roundAmount, 'at', roundPrice, 'with', calculateFee, 'fees', '(', pair, ')'); 
-       
-	   try{
-		   data = await ccxt.createLimitSellOrder (pair, roundAmount, roundPrice);
-		   cb(undefined, data);
-       }catch(e){
-		  console.log(e);
-	      cb(e);
-       }
+        try{
+          data = await ccxt.createLimitSellOrder (pair, roundAmount, roundPrice);
+          cb(undefined, data);
+          }catch(e){
+          console.log(e);
+            cb(e);
+          }
      }) ();
   };
   
   var processResult = function (err, data){
-    if(err) return callback(err);
+  if(err) return callback(err);
     
-    var txid = data['id'];
+  var txid = data['id'];
 	if(_.isUndefined(txid))
 		txid = 0; //Order id is undefined, assuming order is already filled. See https://github.com/ccxt/ccxt/issues/660
     console.log('[ccxt-' + this.exchangeName + '] (sell) added order with txid:', txid);
@@ -583,7 +472,6 @@ Trader.prototype.getOrder = function(order, callback) {
   };	  
 	  
   let handler = (cb) => processAttempt(this.ccxt, this.pair, order, this.handleResponse('getOrder', cb));
-  //util.retryCustom(retryCritical, _.bind(handler, this), _.bind(processResult, this));
   retry(null, _.bind(handler, this), _.bind(processResult, this)); 	
 }
 
@@ -618,44 +506,42 @@ Trader.prototype.checkOrder = function(order, callback) {
   };
 
   let handler = (cb) => processAttempt(this.ccxt, order, this.pair, this.handleResponse('checkOrder', cb));
-  //util.retryCustom(retryCritical, _.bind(handler, this), _.bind(processResult, this));
   retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
 
 Trader.prototype.cancelOrder = function(order, callback) {
-  var processAttempt = function(ccxt, cb) {
+  var processAttempt = function(ccxt, order, cb) {
      
      (async () => {
       try {
-        console.log('QQQQQQQQQQQQQQQQQQQQQQQQQ Cancel order with id');
-        console.log(order);
-
         var data = await ccxt.cancelOrder(order);
         console.log(data);
-        cb(undefined, false);
+        cb(undefined, false, data);
       } catch(e){
         console.log(e);
         if(e instanceof ccxtError.OrderNotFound)
-          cb(undefined, true);	//If no order found, then order is cancelled or filled.
+          cb(undefined, true, data);	//If no order found, then order is cancelled or filled.
         else{
+          console.log('Attention!! Err on cancelOrder');
           cb(e);
         }  	  
       }
     }) ();
   };
   
-  var processResult = function (err, data){
-	 if(err) 
-		return callback(err);
+  var processResult = function (err, bol, data){
+	  if(err) {
+      console.log('Error happened on cancelOrder');
+		  return callback(err);
+    }
 
-	 console.log('[ccxt-' + this.exchangeName + '] (cancelOrder) result', data);
-     callback(undefined, data);	
+	  //console.log('[ccxt-' + this.exchangeName + '] (cancelOrder) result', data);
+    callback(undefined, bol, data);	
   };	
   
-  let handler = (cb) => processAttempt(this.ccxt, this.handleResponse('cancelOrder', cb));
-  //util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResult, this));
-  retry(null, _.bind(handler, this), _.bind(processResult, this));
+  let handler = (cb) => processAttempt(this.ccxt, order, this.handleResponse('cancelOrder', cb));
+  retry(null, handler, processResult);
 }
 
 
@@ -740,6 +626,7 @@ Trader.getCapabilities = function () {
              ret.push(capabilities);
           }
        }
+
        return ret;
     }else{
        let Trader = null;
@@ -764,7 +651,8 @@ Trader.getCapabilities = function () {
              try{
                 markets = await Trader.loadMarkets();
              }catch(e){
-                return this.retry(this.getCapabilities, ccxtSlug);
+                return retry(null, this.getCapabilities, null);
+                //retry(null, _.bind(handler, this), _.bind(processResult, this));
              }
              retFlag = true;
           }) ();
