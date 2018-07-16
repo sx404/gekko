@@ -23,7 +23,7 @@ const Trader = function(config) {
     this.currency = config.currency;
     this.asset = config.asset;
   }
-  this.name = 'HitBTC';
+  this.name = 'OKEX';
   this.since = null;
   
   this.balance;
@@ -31,7 +31,7 @@ const Trader = function(config) {
   //this.interval = 3000;
 
   this.pair = [this.asset, this.currency].join('/');
-  var exchange = 'hitbtc2';
+  var exchange = 'okex';
 
   this.ccxt = new Ccxt[exchange]({apiKey: this.key, secret: this.secret, uid:this.username, password: this.passphrase});
   this.exchangeName = exchange;
@@ -154,6 +154,7 @@ Trader.prototype.handleResponse = function(funcName, callback) {
 
 
 Trader.prototype.getTrades = function(since, callback, descending) {
+  console.log('getTrades: ' + since);
   var firstFetch = !!since;
   var processAttempt = function(ccxt, pair, since, cb) {
      
@@ -201,8 +202,7 @@ Trader.prototype.getTrades = function(since, callback, descending) {
 	callback(null, retValue);
   };	
   
-  let handler = (cb) => processAttempt(this.ccxt, this.pair, since, this.handleResponse('getTrades', cb));
-  //util.retryCustom(retryForever, _.bind(handler, this), _.bind(processResult, this));  	
+  let handler = (cb) => processAttempt(this.ccxt, this.pair, since, this.handleResponse('getTrades', cb)); 	
   retry(null, _.bind(handler, this), _.bind(processResult, this));
 }
 
@@ -520,7 +520,7 @@ Trader.prototype.cancelOrder = function(order, callback) {
         cb(undefined, false, data);
       } catch(e){
         console.log(e);
-        if(e instanceof ccxtError.OrderNotFound || e.message.indexOf('NO DATA WAS RETURNED') > -1)
+        if(e instanceof ccxtError.OrderNotFound)
           cb(undefined, true, data);	//If no order found, then order is cancelled or filled.
         else{
           console.log('Attention!! Err on cancelOrder');
@@ -547,7 +547,7 @@ Trader.prototype.cancelOrder = function(order, callback) {
 
 //Dynamic getCapabilities - takes a while
 Trader.getCapabilities = function () {
-    var ccxtSlug = 'hitbtc2';
+    var ccxtSlug = 'okex';
     var retFlag = false;
                                       
     if(_.isUndefined(ccxtSlug)){
@@ -679,7 +679,7 @@ Trader.getCapabilities = function () {
        if(markets !== null){
           capabilities = {
              name : trader.id, 
-             slug: 'hitbtc2',
+             slug: 'okex',
              currencies: arrCurrencies.sort(),
              assets: arrAssets.sort(),
              markets: arrPair.sort(function(a,b){

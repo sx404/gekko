@@ -93,6 +93,7 @@ Market.prototype.processCandles = function(err, candles) {
   }
 
   _.each(candles, function(c, i) {
+    //console.log(c);
     c.start = moment.unix(c.start);
     this.push(c);
   }, this);
