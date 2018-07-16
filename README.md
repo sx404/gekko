@@ -4,9 +4,15 @@ Crypto Trading Bot based on askmike/gekko v0.6.x
 
 - Use postgresql DB as default db to prevent sqlite lock scenarios
   - Rewritten postgres plugin, using connection pooling and transaction safe candle writing (Postgres 9.5+ required)
-- Added hitbtc exchange based on v2 API and ccxt library (working with Gekko v0.6.x)
+- HitBtc exchange support based on v2 API and ccxt library (working with Gekko v0.6.x)
   - Market watcher
   - History import
+  - Live trading
+- HuobiPro exchange support
+  - Market watcher
+  - Live trading
+- OKEX exchange support
+  - Market watcher
   - Live trading
 - Extended log output
   - mailer.js informs with buy and sell events by mail (different to go short/long advices)
