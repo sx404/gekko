@@ -281,6 +281,8 @@ Trader.prototype.cancelOrder = function(id, advice, next) {
   this.order.removeAllListeners();
   this.order.cancel();
   this.order.once('completed', () => {
+    this.order = null;
+    this.cancellingOrder = false;
     this.deferredEmit('tradeCancelled', {
       id,
       adviceId: advice.id,
