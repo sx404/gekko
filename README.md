@@ -2,22 +2,40 @@
 
 Crypto Trading Bot based on askmike/gekko v0.6.x
 
-- Use postgresql DB as default db to prevent sqlite lock scenarios
+>> See screenshots folder <<
+
+- Rewritten telegram bot
+  - User mode
+    - list trading pair, strategy and candle size
+    - get current price from exchange
+    - get trading trend
+    - subscribe/unsubscribe to trading advices
+  - Admin mode
+    - Password restricted access
+    - Manually buy and sell tokens with one click
+    - Show exchange portfolio value
+- Advanced Postgresql DB features (used as default db to prevent sqlite lockings)
   - Rewritten postgres plugin, using connection pooling and transaction safe candle writing (Postgres 9.5+ required)
-- HitBtc exchange support based on v2 API and ccxt library (working with Gekko v0.6.x)
-  - Market watcher
-  - History import
-  - Live trading
-- HuobiPro exchange support
-  - Market watcher
-  - Live trading
-- OKEX exchange support
-  - Market watcher
-  - Live trading
-- Extended log output
-  - mailer.js informs with buy and sell events by mail (different to go short/long advices)
-  - More info during paper trader backtesting
-- Added often used package dependencies by default to get started quickly (npm install)
+- Additional exchange support (using ccxt)
+  - HitBtc exchange support
+    - Market watcher
+    - History import
+    - Backtesting
+    - Live trading
+  - HuobiPro exchange support
+    - Market watcher
+    - History import from Coinmarketcap
+    - Backtesting
+    - Live trading
+  - OKEX exchange support
+    - Market watcher
+    - History import from Coinmarketcap
+    - Backtesting
+    - Live trading
+  - Extended log output
+    - mailer.js informs with buy and sell events by mail (different to go short/long advices)
+    - More info during paper trader backtesting
+  - Added often used package dependencies by default to get started quickly (npm install)
 
 ## Getting started
 
@@ -41,14 +59,3 @@ from time to time the exchange markets should be updated with a utility - to get
 
 See [the documentation website](https://gekko.wizb.it/docs/introduction/about_gekko.html).
 
-## Installation & Usage
-
-See [the installing Gekko doc](https://gekko.wizb.it/docs/installation/installing_gekko.html).
-
-## Community & Support
-
-Gekko has [a forum](https://forum.gekko.wizb.it/) that is the place for discussions on using Gekko, automated trading and exchanges. In case you rather want to chat in realtime about Gekko feel free to join the [Gekko Support Discord](https://discord.gg/26wMygt).
-
-## Final
-
-If Gekko helped you in any way, you can always leave me a tip at (BTC) 13r1jyivitShUiv9FJvjLH7Nh1ZZptumwW
