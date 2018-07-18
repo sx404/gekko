@@ -143,9 +143,11 @@ Trader.prototype.processError = function(funcName, error) {
 
 Trader.prototype.handleResponse = function(funcName, callback) {
   return (error, body) => {
-    if(!error) {
-      if(_.isEmpty(body))
-        error = new Error('NO DATA WAS RETURNED');
+    if(error) {
+      if(_.isString(error) && error.message == 'Order not found') {
+        //order was canceled already and can not be found
+        error = null;
+      }
     }
 
     return callback(this.processError(funcName, error), body);
