@@ -118,6 +118,30 @@ Mailer.prototype.processAdvice = function(advice) {
   this.mail(subject, text);
 };
 
+
+Mailer.prototype.processTrade = function(trade) {
+
+  var text = [
+    'Gekko is watching ',
+    config.watch.exchange,
+    ' and has a new trade advice to ',
+    trade.action.toUpperCase() + ' ' + config.watch.asset,
+    '.\n\nThe current ',
+    config.watch.asset,
+    ' price is ',
+    config.watch.currency,
+    ' ',
+    trade.price,
+    '\n\nTrade advice date:  ',
+    trade.date
+  ].join('');
+
+  var subject = 'New trade advice: ' + trade.action.toUpperCase();
+
+  this.mail(subject, text);
+}
+
+
 Mailer.prototype.processStratNotification = function({ content }) {
   const subject = `New notification from ${config.tradingAdvisor.method}`;
   const text = [
