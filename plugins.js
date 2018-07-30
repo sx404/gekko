@@ -120,6 +120,7 @@ var plugins = [
     slug: 'paperTrader',
     async: false,
     modes: ['realtime', 'backtest'],
+    mandatoryOn: ['backtest'],
     emits: ['portfolioUpdate', 'trade'],
     path: config => 'paperTrader/paperTrader.js',
   },

@@ -66,6 +66,17 @@ var pluginHelper = {
 
     plugin.config = config[plugin.slug];
 
+    if(_.contains(plugin.mandatoryOn, gekkoMode)) {
+      log.warn(
+        'The plugin',
+        plugin.name,
+        'is mandatory for mode',
+        gekkoMode + '.',
+        'It has been enabled.'
+      )
+      plugin.config.enabled = true;
+    }
+    
     if(!plugin.config || !plugin.config.enabled)
       return next();
 
