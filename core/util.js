@@ -29,6 +29,15 @@ var util = {
       util.die('Cannot find the specified config file.', true);
 
     _config = require(util.dirs().gekko + program.config);
+
+    if(program.set) {
+      let args = program.set.split('=');
+      if (args.length != 2)
+        util.die('Invalid argument usage: --set');
+        
+      this.setConfigProperty(null, args[0], JSON.parse(args[1]));
+    }
+
     return _config;
   },
   // overwrite the whole config
@@ -177,6 +186,7 @@ program
   .option('-c, --config <file>', 'Config file')
   .option('-b, --backtest', 'backtesting mode')
   .option('-i, --import', 'importer mode')
+  .option('-s, --set <property>=<value>', 'override a config option, e.g. --set debug=true')
   .option('--ui', 'launch a web UI')
   .parse(process.argv);
 
