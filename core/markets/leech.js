@@ -7,6 +7,7 @@ const moment = require('moment');
 
 const util = require('../util');
 const dirs = util.dirs();
+const log = require(dirs.core + 'log');
 const config = util.getConfig();
 
 const exchangeChecker = require(dirs.gekko + 'exchange/exchangeChecker');
@@ -58,7 +59,6 @@ Market.prototype._read = _.once(function() {
 
 Market.prototype.get = function() {
   var future = moment().add(1, 'minute').unix();
-
   this.reader.get(
     this.latestTs,
     future,
@@ -69,11 +69,13 @@ Market.prototype.get = function() {
 
 Market.prototype.processCandles = function(err, candles) {
   var amount = _.size(candles);
+  
   if(amount === 0) {
     // no new candles!
     return;
   }
-
+  log.debug('Leecher, processing new candles: ' + amount);
+  
   // TODO:
   // verify that the correct amount of candles was passed:
   //
