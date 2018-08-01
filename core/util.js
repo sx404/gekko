@@ -31,11 +31,23 @@ var util = {
     _config = require(util.dirs().gekko + program.config);
 
     if(program.set) {
-      let args = program.set.split('=');
-      if (args.length != 2)
-        util.die('Invalid argument usage: --set');
+      //e.g. program.set => 'tradingAdvisor.candleSize=1,debug=true'
+      let arrset = program.set.split(',');
+
+      if (arrset.length == 0)
+        arrset.push(program.set);
+
+      for(let i=0; i<arrset.length; i++) {
+        let args = arrset[i].split('=');
+        if (args.length != 2)
+          util.die('Invalid argument usage: --set');
         
-      this.setConfigProperty(null, args[0], JSON.parse(args[1]));
+        let prop = args[0].split('.');
+        if (prop.length === 2)
+          this.setConfigProperty(prop[0], prop[1], JSON.parse(args[1])); 
+        else  
+          this.setConfigProperty(null, args[0], JSON.parse(args[1]));
+      }
     }
 
     return _config;
