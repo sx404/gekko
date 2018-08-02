@@ -119,7 +119,7 @@ Mailer.prototype.processAdvice = function(advice) {
 };
 
 
-Mailer.prototype.processTrade = function(trade) {
+Mailer.prototype.processTradeInitiated = function(trade) {
 
   var text = [
     'Gekko is watching ',
@@ -131,12 +131,35 @@ Mailer.prototype.processTrade = function(trade) {
     ' price is ',
     config.watch.currency,
     ' ',
-    trade.price,
-    '\n\nTrade advice date:  ',
-    trade.date
+    this.price,
+    '\n\nTrade initiated (UTC):  ',
+    trade.date.format('YYYY-MM-DD HH:mm:ss')
   ].join('');
 
   var subject = 'New trade advice: ' + trade.action.toUpperCase();
+
+  this.mail(subject, text);
+}
+
+
+Mailer.prototype.processTradeCompleted = function(trade) {
+
+  var text = [
+    'Gekko has just completed the automated trading to ',
+    trade.action.toUpperCase() + ' ' + config.watch.asset,
+    '.\n\nTrade amount: ',
+    trade.amount,
+    ' ',
+    config.watch.asset,
+    '\nTrade price: ',
+    trade.price,
+    ' ',
+    config.watch.currency,
+    '\n\nTrade completed (UTC):  ',
+    trade.date.format('YYYY-MM-DD HH:mm:ss')
+  ].join('');
+
+  var subject = 'Trade completed: ' + trade.action.toUpperCase();
 
   this.mail(subject, text);
 }
