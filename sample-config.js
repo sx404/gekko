@@ -270,8 +270,9 @@ config.backtestResultExporter = {
   writeToDisk: true,
   data: {
     stratUpdates: false,
-    roundtrips: true,
+    portfolioValues: true,
     stratCandles: true,
+    roundtrips: true,
     trades: true
   }
 }
