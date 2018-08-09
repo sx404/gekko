@@ -242,10 +242,9 @@ Trader.prototype.createOrder = function(side, amount, advice, id) {
     adviceId: advice.id,
     action: side,
     portfolio: this.portfolio,
-    balance: this.balance
+    balance: this.balance,
+    date: advice.date
   });
-console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
-console.log(amount);
   this.order = this.broker.createOrder(type, side, amount);
 
   this.order.on('filled', f => log.info('[ORDER] partial', side, ' fill, total filled:', f));

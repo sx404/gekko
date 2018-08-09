@@ -119,7 +119,7 @@ PaperTrader.prototype.processAdvice = function(advice) {
     action,
     portfolio: _.clone(this.portfolio),
     balance: this.getBalance(),
-    date: advice.date,
+    date: advice.date
   });
 
   const { cost, amount, effectivePrice } = this.updatePosition(advice);
