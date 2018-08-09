@@ -95,7 +95,10 @@ if(emitTrades) {
     var message = 'Trade initiated. ID: ' + tradeInitiated.id +
     '\nAction: ' + tradeInitiated.action + '\nPortfolio: ' +
     tradeInitiated.portfolio + '\nBalance: ' + tradeInitiated.balance;
-    this.bot.sendMessage(this.chatId, message);
+    
+    this.subscribers.forEach(function(chatId) {
+      this.bot.sendMessage(chatId, message);
+    }, this);
   }
   
   Actor.prototype.processTradeCancelled = function (tradeCancelled) {
@@ -106,13 +109,19 @@ if(emitTrades) {
   Actor.prototype.processTradeAborted = function (tradeAborted) {
     var message = 'Trade aborted. ID: ' + tradeAborted.id +
     '\nNot creating order! Reason: ' + tradeAborted.reason;
-    this.bot.sendMessage(this.chatId, message);
+  
+    this.subscribers.forEach(function(chatId) {
+      this.bot.sendMessage(chatId, message);
+    }, this);  
   }
   
   Actor.prototype.processTradeErrored = function (tradeErrored) {
     var message = 'Trade errored. ID: ' + tradeErrored.id +
     '\nReason: ' + tradeErrored.reason;
-    this.bot.sendMessage(this.chatId, message);
+  
+    this.subscribers.forEach(function(chatId) {
+      this.bot.sendMessage(chatId, message);
+    }, this);
   }
   
   Actor.prototype.processTradeCompleted = function (tradeCompleted) {
@@ -120,12 +129,13 @@ if(emitTrades) {
     '\nAction: ' + tradeCompleted.action +
     '\nPrice: ' + tradeCompleted.price +
     '\nAmount: ' + tradeCompleted.amount +
-    '\nCost: ' + tradeCompleted.cost +
-    '\nPortfolio: ' + tradeCompleted.portfolio +
     '\nBalance: ' + tradeCompleted.balance +
     '\nFee percent: ' + tradeCompleted.feePercent +
     '\nEffective price: ' + tradeCompleted.effectivePrice;
-    this.bot.sendMessage(this.chatId, message); 
+    
+    this.subscribers.forEach(function(chatId) {
+      this.bot.sendMessage(chatId, message);
+    }, this);
   }
 }
 
@@ -239,7 +249,7 @@ Actor.prototype.emitAdvice = function(chatId) {
     message += 'None'
   }
 
-  this.bot.sendMessage(chatId, message, this.keyboard);
+  this.bot.sendMessage(chatId, message);
 };
 
 
