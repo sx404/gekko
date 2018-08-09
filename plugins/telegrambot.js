@@ -25,6 +25,9 @@ const Actor = function() {
 
   this.pcurrency = 'Dont know yet :(';
   this.passet = 'Dont know yet :(';
+  this.pvalue = 'Dont know yet :(';
+  this.pperformance = undefined;
+  this.lasttradeprice = undefined;
 
   this.commands = {
     '/start': 'emitStart',
@@ -50,6 +53,10 @@ const Actor = function() {
   this.bot = new telegram(telegrambot.token, { polling: true });
   this.bot.onText(/(.+)/, this.verifyQuestion);
 
+  this.nokeyboard = {
+    "parse_mode" : "HTML"
+  }
+
   this.keyboard = {
     "parse_mode" : "HTML",
     "reply_markup": {
@@ -72,6 +79,14 @@ util.makeEventEmitter(Actor);
 Actor.prototype.processCandle = function(candle, done) {
   this.price = candle.close;
   this.priceTime = candle.start;
+  if (this.lasttradeprice != undefined) {
+    let change = this.price / this.lasttradeprice;
+
+    if (change > 1)
+      this.pperformance = '+' + ((change - 1)*100).toFixed(2) + ' %';
+    else
+      this.pperformance = '-' + ((1 - change)*100).toFixed(2) + ' %';
+  }
 
   done();
 };
@@ -90,51 +105,59 @@ Actor.prototype.processPortfolioChange = function(portfolio) {
   this.passet = portfolio.asset;
 }
 
+Actor.prototype.processPortfolioValueChange = function(portfolio) {
+  this.pvalue = portfolio.balance;
+}
+
 if(emitTrades) {
   Actor.prototype.processTradeInitiated = function (tradeInitiated) {
-    var message = 'Trade initiated. ID: ' + tradeInitiated.id +
-    '\nAction: ' + tradeInitiated.action + '\nPortfolio: ' +
-    tradeInitiated.portfolio + '\nBalance: ' + tradeInitiated.balance;
+    var message = '<b>Trade initiated.</b>' +
+    '\nAction: ' + tradeInitiated.action + 
+    '\nPortfolio:\nCurrency: ' + tradeInitiated.portfolio.currency + ' ' + config.watch.currency + 
+    '\nAsset: ' + tradeInitiated.portfolio.asset + ' ' + config.watch.asset +  
+    '\nBalance: ' + tradeInitiated.balance;
     
     this.subscribers.forEach(function(chatId) {
-      this.bot.sendMessage(chatId, message);
+      this.bot.sendMessage(chatId, message, this.nokeyboard);
     }, this);
   }
   
   Actor.prototype.processTradeCancelled = function (tradeCancelled) {
-    var message = 'Trade cancelled. ID: ' + tradeCancelled.id;
+    var message = 'Trade cancelled.';
     this.bot.sendMessage(this.chatId, message);
   }
   
   Actor.prototype.processTradeAborted = function (tradeAborted) {
-    var message = 'Trade aborted. ID: ' + tradeAborted.id +
+    var message = '<b>Trade aborted.</b>' +
     '\nNot creating order! Reason: ' + tradeAborted.reason;
   
     this.subscribers.forEach(function(chatId) {
-      this.bot.sendMessage(chatId, message);
+      this.bot.sendMessage(chatId, message, this.nokeyboard);
     }, this);  
   }
   
   Actor.prototype.processTradeErrored = function (tradeErrored) {
-    var message = 'Trade errored. ID: ' + tradeErrored.id +
+    var message = '<b>Trade errored.</b>' +
     '\nReason: ' + tradeErrored.reason;
   
     this.subscribers.forEach(function(chatId) {
-      this.bot.sendMessage(chatId, message);
+      this.bot.sendMessage(chatId, message, this.nokeyboard);
     }, this);
   }
   
   Actor.prototype.processTradeCompleted = function (tradeCompleted) {
-    var message = 'Trade completed. ID: ' + tradeCompleted.id + 
+    var message = '<b>Trade completed.</b>' + 
     '\nAction: ' + tradeCompleted.action +
-    '\nPrice: ' + tradeCompleted.price +
-    '\nAmount: ' + tradeCompleted.amount +
-    '\nBalance: ' + tradeCompleted.balance +
-    '\nFee percent: ' + tradeCompleted.feePercent +
-    '\nEffective price: ' + tradeCompleted.effectivePrice;
+    '\nPrice: ' + tradeCompleted.price + ' ' + config.watch.currency +
+    '\nPortfolio:' +
+    '\nCurrency: ' + tradeCompleted.portfolio.currency + ' ' + config.watch.currency +
+    '\nAsset: ' + tradeCompleted.portfolio.asset + ' ' + config.watch.asset +
+    '\nNew value: ' + tradeCompleted.balance.toFixed(2) + ' ' + config.watch.currency +
+    '\nFee percent: ' + tradeCompleted.feePercent;
     
+    this.lasttradeprice = tradeCompleted.price
     this.subscribers.forEach(function(chatId) {
-      this.bot.sendMessage(chatId, message);
+      this.bot.sendMessage(chatId, message, this.nokeyboard);
     }, this);
   }
 }
@@ -301,7 +324,9 @@ Actor.prototype.emitAdminPortfolio = function(chatId) {
   let message = [
     'Your current balance values at <b>' + config.watch.exchange + '</b>:\n',
     '<b>' + config.watch.currency + '</b>: ' + this.pcurrency + '\n',
-    '<b>' + config.watch.asset + '</b>: ' + this.passet + '\n'
+    '<b>' + config.watch.asset + '</b>: ' + this.passet + '\n',
+    this.pvalue != undefined ? '<b>Value</b>: ' + this.pvalue.toFixed(2) + ' ' + config.watch.currency + '\n' : '',
+    this.pperformance != undefined ? 'Change since last trade: <b>' + this.pperformance + '</b>\n' : '',
   ].join('');
 
   message = message.substr(0, _.size(message) - 1) + '.';
@@ -359,13 +384,13 @@ Actor.prototype.emitAdminPrice = function(chatId) {
 
 
 Actor.prototype.emitAdminBuy = function(chatId) {
-  this.emit('advice', { recommendation: 'long' });
+  this.emit('advice', { recommendation: 'long', date: moment() });
   this.bot.sendMessage(chatId, "OK, I am going to BUY new tokens now. Check your /portfolio soon.");
 };
 
 
 Actor.prototype.emitAdminSell = function(chatId) {
-  this.emit('advice', { recommendation: 'short' });
+  this.emit('advice', { recommendation: 'short', date: moment() });
   this.bot.sendMessage(chatId, "OK, I am going to SELL your tokens now. Check your /portfolio soon.");
 };
 
