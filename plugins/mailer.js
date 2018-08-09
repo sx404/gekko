@@ -120,7 +120,7 @@ Mailer.prototype.processAdvice = function(advice) {
 
 
 Mailer.prototype.processTradeInitiated = function(trade) {
-
+/*
   var text = [
     'Gekko is watching ',
     config.watch.exchange,
@@ -133,9 +133,11 @@ Mailer.prototype.processTradeInitiated = function(trade) {
     ' ',
     this.price,
     '\n\nTrade initiated (UTC):  ',
-    trade.date.format('YYYY-MM-DD HH:mm:ss')
+    trade.date.format('YYYY-MM-DD H:-mm:ss')
   ].join('');
-
+*/
+  var text = JSON.stringify(trade);
+  console.log(text);
   var subject = 'New trade advice: ' + trade.action.toUpperCase();
 
   this.mail(subject, text);
