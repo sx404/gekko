@@ -16,6 +16,9 @@ Crypto Trading Bot based on askmike/gekko v0.6.x
     - Show exchange portfolio value
 - Advanced Postgresql DB features (used as default db to prevent sqlite lockings)
   - Rewritten postgres plugin, using connection pooling and transaction safe candle writing (Postgres 9.5+ required)
+- New command line options:
+  - Evaluate plugin dependencies and automatically enable a plugin when it is mandatory inside a certain mode, e.g. enable the Paper Trader when in backtest mode. See new mandatoryOn property in plugins.js file.
+  - New --set command line option to override config settings, e.g. --set debug=true to enable the debug mode output - no need to touch the config.js for a quick debug run
 - Additional exchange support (using ccxt)
   - HitBtc exchange support
     - Market watcher
