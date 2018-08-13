@@ -1,4 +1,4 @@
-const Poloniex = require("poloniex.js");
+const Poloniex = require("gekko-broker-poloniex");
 const _ = require('lodash');
 const moment = require('moment');
 const retry = require('../exchangeUtils').retry;
@@ -18,7 +18,11 @@ const Trader = function(config) {
 
   this.pair = this.currency + '_' + this.asset;
 
-  this.poloniex = new Poloniex(this.key, this.secret);
+  this.poloniex = new Poloniex({
+    key: this.key,
+    secret: this.secret,
+    userAgent: 'Gekko Broker v' + require('../package.json').version
+  });
 }
 
 const recoverableErrors = [
@@ -150,8 +154,6 @@ Trader.prototype.processResponse = function(next, fn, payload) {
       }
 
       if(fn === 'order') {
-        console.log('order', error.message);
-
         if(includes(error.message, ['Not enough'])) {
           error.retry = 2;
         }
@@ -369,8 +371,6 @@ Trader.prototype.cancelOrder = function(order, callback) {
     if(err) {
       return callback(err);
     }
-
-    console.log(new Date, 'cancel', result.amount);
 
     if(result.filled) {
       return callback(undefined, true);
