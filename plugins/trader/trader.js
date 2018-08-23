@@ -7,6 +7,8 @@ const moment = require('moment');
 const log = require(dirs.core + 'log');
 const Broker = require(dirs.gekko + '/exchange/gekkoBroker');
 
+require(dirs.gekko + '/exchange/dependencyCheck');
+
 if(config.trader.enabled && config.paperTrader.enabled) {
   //this can only happen in realtime mode - during backtest the trader is disabled by design
   util.die('You can not run Gekko in realtime mode with both \"Paper Trader\" AND \"Trader\" enabled.')
@@ -35,7 +37,6 @@ const Trader = function(next) {
   }
 
   this.sync(() => {
-    this.setBalance();
     log.info('\t', 'Portfolio:');
     log.info('\t\t', this.portfolio.currency, this.brokerConfig.currency);
     log.info('\t\t', this.portfolio.asset, this.brokerConfig.asset);
@@ -68,6 +69,7 @@ Trader.prototype.sync = function(next) {
     const oldPortfolio = this.portfolio;
 
     this.setPortfolio();
+    this.setBalance();
 
     if(this.sendInitialPortfolio && !_.isEqual(oldPortfolio, this.portfolio)) {
       this.relayPortfolioChange();
@@ -251,7 +253,7 @@ Trader.prototype.createOrder = function(side, amount, advice, id) {
   });
   this.order = this.broker.createOrder(type, side, amount);
 
-  this.order.on('filled', f => log.info('[ORDER] partial', side, ' fill, total filled:', f));
+  this.order.on('fill', f => log.info('[ORDER] partial', side, 'fill, total filled:', f));
   this.order.on('statusChange', s => log.debug('[ORDER] statusChange:', s));
 
   this.order.on('error', e => {

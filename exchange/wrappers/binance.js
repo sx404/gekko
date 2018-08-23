@@ -64,6 +64,8 @@ const Trader = function(config) {
     this.fee = 0.1;
     // Set the proper fee asap.
     this.getFee(_.noop);
+
+    this.oldOrder = false;
   }
 };
 
@@ -78,7 +80,9 @@ const recoverableErrors = [
   'Response code 5',
   'Response code 403',
   'ETIMEDOUT',
-  'EHOSTUNREACH'
+  'EHOSTUNREACH',
+  // getaddrinfo EAI_AGAIN api.binance.com api.binance.com:443
+  'EAI_AGAIN'
 ];
 
 const includes = (str, list) => {
@@ -113,6 +117,10 @@ Trader.prototype.handleResponse = function(funcName, callback) {
         // order got filled in full before it could be
         // cancelled, meaning it was NOT cancelled.
         return callback(false, {filled: true});
+      }
+
+      if(funcName === 'addOrder' && error.message.includes('Account has insufficient balance')) {
+        error.type = 'insufficientFunds';
       }
 
       return callback(error);
@@ -299,7 +307,6 @@ Trader.prototype.isValidPrice = function(price) {
 }
 
 Trader.prototype.isValidLot = function(price, amount) {
-  console.log('isValidLot', this.market.minimalOrder.order, amount * price >= this.market.minimalOrder.order)
   return amount * price >= this.market.minimalOrder.order;
 }
 
@@ -458,7 +465,12 @@ Trader.prototype.checkOrder = function(order, callback) {
 Trader.prototype.cancelOrder = function(order, callback) {
 
   const cancel = (err, data) => {
+
+    this.oldOrder = order;
+
     if(err) {
+      if(err.message.contains(''))
+
       return callback(err);
     }
 
@@ -490,7 +502,8 @@ Trader.getCapabilities = function() {
     providesFullHistory: true,
     tid: 'tid',
     tradable: true,
-    gekkoBroker: 0.6
+    gekkoBroker: 0.6,
+    limitedCancelConfirmation: true
   };
 };
 
