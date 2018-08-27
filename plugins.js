@@ -27,6 +27,24 @@
 //    properly when some events wont be emitted.
 var plugins = [
   {
+    name: 'Candle writer',
+    description: 'Store candles in a database',
+    slug: 'candleWriter',
+    async: true,
+    modes: ['realtime', 'importer'],
+    path: config => config.adapter + '/writer',
+    version: 0.1,
+  },
+  {
+    name: 'Trading Advisor',
+    description: 'Calculate trading advice',
+    slug: 'tradingAdvisor',
+    async: true,
+    modes: ['realtime', 'backtest'],
+    emits: true,
+    path: config => 'tradingAdvisor/tradingAdvisor.js',
+  },
+  {
     name: 'IRC bot',
     description: 'IRC module lets you communicate with Gekko on IRC.',
     slug: 'ircbot',
@@ -111,7 +129,7 @@ var plugins = [
     slug: 'trader',
     async: true,
     modes: ['realtime'],
-    emits: ['portfolioUpdate', 'trade'],
+    emits: true,
     path: config => 'trader/trader.js',
   },
   {
@@ -121,7 +139,7 @@ var plugins = [
     async: false,
     modes: ['realtime', 'backtest'],
     mandatoryOn: ['backtest'],
-    emits: ['portfolioUpdate', 'trade'],
+    emits: true,
     path: config => 'paperTrader/paperTrader.js',
   },
   {
@@ -130,7 +148,7 @@ var plugins = [
     slug: 'performanceAnalyzer',
     async: false,
     modes: ['realtime', 'backtest'],
-    emits: ['roundtrip', 'roundtripUpdate', 'performanceUpdate'],
+    emits: true,
     path: config => 'performanceAnalyzer/performanceAnalyzer.js',
   },
   {

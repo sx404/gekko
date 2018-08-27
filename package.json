@@ -1,6 +1,6 @@
 {
   "name": "gekko",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "A bitcoin trading bot for auto trading at various exchanges",
   "keywords": [
     "trading",
@@ -43,7 +43,7 @@
     "talib": "^1.0.5",
     "tiny-promisify": "^0.1.1",
     "toml": "^2.3.0",
-    "tulind": "^0.8.11"
+    "ws": "^6.0.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",

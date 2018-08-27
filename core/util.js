@@ -141,7 +141,8 @@ var util = {
       tools: ROOT + 'core/tools/',
       workers: ROOT + 'core/workers/',
       web: ROOT + 'web/',
-      config: ROOT + 'config/'
+      config: ROOT + 'config/',
+      broker: ROOT + 'exchange/'
     }
   },
   inherit: function(dest, source) {

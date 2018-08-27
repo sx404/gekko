@@ -5,7 +5,7 @@ const dirs = util.dirs();
 const moment = require('moment');
 
 const log = require(dirs.core + 'log');
-const Broker = require(dirs.gekko + '/exchange/gekkoBroker');
+const Broker = require(dirs.broker + '/gekkoBroker');
 
 require(dirs.gekko + '/exchange/dependencyCheck');
 
@@ -25,6 +25,7 @@ const Trader = function(next) {
   }
 
   this.propogatedTrades = 0;
+  this.propogatedTriggers = 0;
 
   try {
     this.broker = new Broker(this.brokerConfig);
@@ -207,6 +208,18 @@ Trader.prototype.processAdvice = function(advice) {
       });
     }
 
+    // clean up potential old stop trigger
+    if(this.activeStopTrigger) {
+      this.deferredEmit('triggerAborted', {
+        id: this.activeStopTrigger.id,
+        date: advice.date
+      });
+
+      this.activeStopTrigger.instance.cancel();
+
+      delete this.activeStopTrigger;
+    }
+
     amount = this.portfolio.asset;
 
     log.info(
@@ -320,9 +333,63 @@ Trader.prototype.createOrder = function(side, amount, advice, id) {
           feePercent: summary.feePercent,
           effectivePrice
         });
+
+        if(
+          side === 'buy' &&
+          advice.trigger &&
+          advice.trigger.type === 'trailingStop'
+        ) {
+          const trigger = advice.trigger;
+          const triggerId = 'trigger-' + (++this.propogatedTriggers);
+
+          this.deferredEmit('triggerCreated', {
+            id: triggerId,
+            at: advice.date,
+            type: 'trialingStop',
+            properties: {
+              trail: trigger.trailValue,
+              initialPrice: summary.price,
+            }
+          });
+
+          log.info(`Creating trailingStop trigger "${triggerId}"! Properties:`);
+          log.info(`\tInitial price: ${summary.price}`);
+          log.info(`\tTrail of: ${trigger.trailValue}`);
+
+          this.activeStopTrigger = {
+            id: triggerId,
+            adviceId: advice.id,
+            instance: this.broker.createTrigger({
+              type: 'trailingStop',
+              onTrigger: this.onStopTrigger,
+              props: {
+                trail: trigger.trailValue,
+                initialPrice: summary.price,
+              }
+            })
+          }
+        }
       });
     })
   });
+}
+
+Trader.prototype.onStopTrigger = function(price) {
+  log.info(`TrailingStop trigger "${this.activeStopTrigger.id}" fired! Observed price was ${price}`);
+
+  this.deferredEmit('triggerFired', {
+    id: this.activeStopTrigger.id,
+    date: moment()
+  });
+
+  const adviceMock = {
+    recommendation: 'short',
+    id: this.activeStopTrigger.adviceId
+  }
+
+  delete this.activeStopTrigger;
+
+  this.processAdvice(adviceMock);
 }
 
 Trader.prototype.cancelOrder = function(id, advice, next) {
