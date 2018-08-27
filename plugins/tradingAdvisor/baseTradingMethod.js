@@ -66,6 +66,9 @@ var Base = function(settings) {
   if(!this.onTrade)
     this.onTrade = function() {};
 
+  if(!this.onCandle)
+    this.onCandle = function() {};
+
   // let's run the implemented starting point
   this.init();
 
