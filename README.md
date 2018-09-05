@@ -2,7 +2,11 @@
 
 Crypto Trading Bot based on askmike/gekko v0.6.x
 
->> See screenshots folder <<
+> **See screenshots folder**
+
+| Screenhot 1 | Screenshot 2 |
+| ----------- | ------------ |
+| ![Gekko with telegram bot](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-crypto-overview.jpg) | ![Gekko with telegram admin mode](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-admin-sell.jpg) |
 
 - Rewritten telegram bot
   - User mode
@@ -58,8 +62,9 @@ from time to time the exchange markets should be updated with a utility - to get
 
 (postgresql experience required to previously setup postgres. Sample config assumes an existing db user gekkodbuser, pass 1234, with added role permission to createdb. PostgreSQL 9.5+ required.)
 
-A good practice to run Gekko processes on a server is using process manager 2 tool:
-pm2 start gekko.js -i 1 --name "gekko-bnb" -- --config config-bnb.js
+> A good practice to run Gekko processes on a server is using process manager 2 tool:
+>
+> **pm2 start gekko.js -i 1 --name "gekko-bnb" -- --config config-bnb.js**
 
 ## Documentation
 
