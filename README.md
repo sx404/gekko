@@ -4,9 +4,9 @@ Crypto Trading Bot based on askmike/gekko v0.6.x
 
 > **See screenshots folder**
 
-| Screenhot 1 | Screenshot 2 |
-| ----------- | ------------ |
-| ![Gekko with telegram bot](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-crypto-overview.jpg) | ![Gekko with telegram admin mode](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-admin-sell.jpg) |
+| [Gekko with Telegram bot | Gekko with Telegram in admin mode |
+| ------------------------ | --------------------------------- |
+| ![Gekko with telegram bot](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-crypto-overview.jpg) | ![Gekko with telegram in admin mode](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-admin-sell.jpg) |
 
 - Rewritten telegram bot
   - User mode
