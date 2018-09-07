@@ -32,6 +32,7 @@ Here is a list of all supported indicators, click on them to read more about wha
 - [PPO](#ppo)
 - [CCI](#cci)
 - [DEMA](#dema)
+- [TEMA](#tema)
 - [LRC](#lrc)
 - [MACD](#macd)
 - [RSI](#rsi)
@@ -81,6 +82,13 @@ You can implement the EMA like so:
 > "The DEMA is a fast-acting moving average that is more responsive to market changes than a traditional moving average. It was developed in an attempt to create a calculation that eliminated some of the lag associated with traditional moving averages."
 
 *[More info on investopedia](https://www.investopedia.com/terms/d/double-exponential-moving-average.asp).*
+
+### TEMA
+
+> **What is the 'Triple Exponential Moving Average - TEMA'**
+> "The triple exponential moving average, or TEMA, was developed by Patrick Mulloy in 1994 to filter out volatility from conventional moving averages."
+
+*[More info on investopedia](https://www.investopedia.com/terms/t/triple-exponential-moving-average.asp).*
 
 ### LRC
 
