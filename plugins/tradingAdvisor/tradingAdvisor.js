@@ -102,7 +102,7 @@ Actor.prototype.processCandle = async function(candle, done) {
     this.next = done;
   } else {
     done();
-    this.next = _.noop;
+    this.next = false;
   }
   this.batcher.flush();
    
@@ -110,7 +110,8 @@ Actor.prototype.processCandle = async function(candle, done) {
 
 // propogate a custom sized candle to the trading strategy
 Actor.prototype.emitStratCandle = function(candle) {
-  this.strategy.tick(candle, this.next);
+  const next = this.next || _.noop;
+  this.strategy.tick(candle, next);
 }
 
 Actor.prototype.processTradeCompleted = function(trade) {
