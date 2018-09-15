@@ -4,6 +4,7 @@ const util = require('../../core/util');
 const config = util.getConfig();
 const dirs = util.dirs();
 const log = require(dirs.core + 'log');
+const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
 const ENV = util.gekkoEnv();
 const mode = util.gekkoMode();
@@ -70,7 +71,7 @@ var Base = function(settings) {
     this.onCandle = function() {};
 
   // let's run the implemented starting point
-  this.init();
+  this.initBase();
 
   if(!config.debug || !this.log)
     this.log = function() {};
@@ -85,6 +86,16 @@ var Base = function(settings) {
 
 // teach our base trading method events
 util.makeEventEmitter(Base);
+
+Base.prototype.initBase = async function() {
+  //strategy developers can implement their INIT function with or without async
+  if (Base.prototype['init'] instanceof AsyncFunction) {
+     await this.init();
+  }
+  else {
+     this.init();
+  }
+}
 
 Base.prototype.tick = function(candle, done) {
   this.age++;
@@ -130,10 +141,15 @@ Base.prototype.calculateSyncIndicators = function(candle, done) {
   return done();
 }
 
-Base.prototype.propogateTick = function(candle) {
+Base.prototype.propogateTick = async function(candle) {
   this.candle = candle;
-  this.update(candle);
 
+  //strategy developers can implement their UPDATE function with or without async 
+  if (Base.prototype['update'] instanceof AsyncFunction)
+     await this.update(candle);
+  else
+     this.update(candle);
+  
   this.processedTicks++;
   var isAllowedToCheck = this.requiredHistory <= this.age;
 
@@ -163,7 +179,12 @@ Base.prototype.propogateTick = function(candle) {
 
   if(this.completedWarmup) {
     this.log(candle);
-    this.check(candle);
+
+    //strategy developers can implement their CHECK function with or without async 
+    if (Base.prototype['check'] instanceof AsyncFunction)
+      await this.check(candle);
+    else
+      this.check(candle);
 
     if(
       this.asyncTick &&
@@ -193,14 +214,14 @@ Base.prototype.propogateTick = function(candle) {
 Base.prototype.processTrade = function(trade) {
   if(
     this._pendingTriggerAdvice &&
-    trade.action === 'sell' &&
-    this._pendingTriggerAdvice === trade.adviceId
+    trade.action === 'sell' //&&
+    //this._pendingTriggerAdvice === trade.adviceId
   ) {
     // This trade came from a trigger of the previous advice,
     // update stored direction
     this._currentDirection = 'short';
     this._pendingTriggerAdvice = null;
-  }
+  };
 
   this.onTrade(trade);
 }
@@ -239,6 +260,7 @@ Base.prototype.advice = function(newDirection) {
     }
 
     if(newDirection.direction === this._currentDirection) {
+      log.debug('Got advice to go', newDirection.direction, 'again - skip this double advice!');
       return;
     }
 
@@ -255,7 +277,7 @@ Base.prototype.advice = function(newDirection) {
 
         if(trigger.trailPercentage && !trigger.trailValue) {
           trigger.trailValue = trigger.trailPercentage / 100 * this.candle.close;
-          log.info('[StratRunner] Trailing stop trail value specified as percentage, setting to:', trigger.trailValue);
+          //log.info('[StratRunner] Trailing stop trail value specified as percentage, setting to:', trigger.trailValue);
         }
       }
     }
