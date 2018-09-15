@@ -63,15 +63,18 @@ if(mode === 'backtest') {
     var at = trade.date.format('YYYY-MM-DD HH:mm:ss');
 
 
-    if(trade.action === 'sell')
+    if(trade.action === 'sell') {
+        let tradeType = trade.trigger.origin != undefined && trade.trigger.origin != 'advice' ? trade.trigger.origin : '';
+        let trailPercent = tradeType == 'trailingStop' ? ' ' + trade.trigger.trailPercentage + '%' : '';
+        let trailSLInfo = tradeType !== '' && trailPercent !== '' ? ` (${tradeType}${trailPercent})` : '';
 
         log.info(
-          `${at}: Paper trader simulated a SELL @ ${trade.price.toFixed(2)} ${this.currency}`,
+          `${at}: Paper trader simulated a SELL${trailSLInfo} @ ${trade.price.toFixed(2)} ${this.currency}`,
           `\t${this.round(trade.portfolio.currency)}`,
           `${this.currency} <= ${this.round(trade.portfolio.asset)}`,
           `${this.asset}`
         );
-
+    }
     else if(trade.action === 'buy')
 
       log.info(
