@@ -1,6 +1,7 @@
 const _ = require('lodash');
 
 const util = require('../../core/util');
+const moment = require('moment');
 const ENV = util.gekkoEnv();
 
 const config = util.getConfig();
@@ -112,11 +113,14 @@ PaperTrader.prototype.now = function() {
 
 PaperTrader.prototype.processAdvice = function(advice) {
   let action;
+  var mytrigger = _.clone(advice.trigger);
+  
   if(advice.recommendation === 'short') {
     action = 'sell';
 
     // clean up potential old stop trigger
-    if(this.activeStopTrigger) {
+    if (this.activeStopTrigger) {
+
       this.deferredEmit('triggerAborted', {
         id: this.activeStopTrigger.id,
         date: advice.date
@@ -156,7 +160,8 @@ PaperTrader.prototype.processAdvice = function(advice) {
     action,
     portfolio: _.clone(this.portfolio),
     balance: this.getBalance(),
-    date: advice.date
+    date: advice.date,
+    status: 'tradeInitiated'
   });
 
   const { cost, amount, effectivePrice } = this.updatePosition(advice.recommendation);
@@ -175,7 +180,12 @@ PaperTrader.prototype.processAdvice = function(advice) {
     balance: this.getBalance(),
     date: advice.date,
     effectivePrice,
-    feePercent: this.rawFee
+    feePercent: this.rawFee,
+    status: 'tradeCompleted',
+    trigger: {
+      origin: mytrigger !== undefined ? mytrigger.type : 'advice',
+      trailPercentage: mytrigger !== undefined ? mytrigger.trailPercentage : undefined
+    } 
   });
 }
 
@@ -193,8 +203,8 @@ PaperTrader.prototype.createTrigger = function(advice) {
     this.deferredEmit('triggerCreated', {
       id: triggerId,
       at: advice.date,
-      type: 'trialingStop',
-      proprties: {
+      type: 'trailingStop',
+      properties: {
         trail: trigger.trailValue,
         initialPrice: this.price,
       }
@@ -206,6 +216,7 @@ PaperTrader.prototype.createTrigger = function(advice) {
       instance: new TrailingStop({
         initialPrice: this.price,
         trail: trigger.trailValue,
+        trailPercentage: trigger.trailPercentage,
         onTrigger: this.onStopTrigger
       })
     }
@@ -214,15 +225,14 @@ PaperTrader.prototype.createTrigger = function(advice) {
   }
 }
 
-PaperTrader.prototype.onStopTrigger = function() {
-
+PaperTrader.prototype.onStopTrigger = function(trail, trailPercentage) {
   const date = this.now();
 
   this.deferredEmit('triggerFired', {
     id: this.activeStopTrigger.id,
     date
   });
-
+/*
   const { cost, amount, effectivePrice } = this.updatePosition('short');
 
   this.relayPortfolioChange();
@@ -239,11 +249,28 @@ PaperTrader.prototype.onStopTrigger = function() {
     balance: this.getBalance(),
     date,
     effectivePrice,
-    feePercent: this.rawFee
+    feePercent: this.rawFee,
+    status: 'tradeCompleted',
+    origin: 'onStopTrigger'
   });
+*/
+  
+  let adviceId = this.activeStopTrigger.adviceId;
+  //delete this.activeStopTrigger;
 
-  delete this.activeStopTrigger;
+  this.deferredEmit('advice', { 
+    recommendation: 'short', 
+    date, 
+    id: this.tradeId, 
+    trigger: {
+      type: 'trailingStop',
+      trail,
+      trailPercentage,
+      adviceId
+    }
+  });
 }
+
 
 PaperTrader.prototype.processCandle = function(candle, done) {
   this.price = candle.close;
