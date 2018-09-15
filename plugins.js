@@ -36,15 +36,6 @@ var plugins = [
     version: 0.1,
   },
   {
-    name: 'Trading Advisor',
-    description: 'Calculate trading advice',
-    slug: 'tradingAdvisor',
-    async: true,
-    modes: ['realtime', 'backtest'],
-    emits: true,
-    path: config => 'tradingAdvisor/tradingAdvisor.js',
-  },
-  {
     name: 'IRC bot',
     description: 'IRC module lets you communicate with Gekko on IRC.',
     slug: 'ircbot',
@@ -247,7 +238,7 @@ var plugins = [
     slug: 'tradingAdvisor',
     async: true,
     modes: ['realtime', 'backtest'],
-    emits: ['advice', 'stratWarmupCompleted', 'stratCandle', 'stratUpdate'],
+    emits: true,
     path: config => 'tradingAdvisor/tradingAdvisor.js',
   }
 ];
