@@ -272,10 +272,7 @@ Base.prototype.advice = function(newDirection) {
     }
 
     if(newDirection.direction === this._currentDirection) {
-<<<<<<< HEAD
       log.debug('Got advice to go', newDirection.direction, 'again - skip this double advice!');
-=======
->>>>>>> askmike/develop
       return;
     }
 
