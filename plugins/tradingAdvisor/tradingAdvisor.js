@@ -2,6 +2,7 @@ var util = require('../../core/util');
 var _ = require('lodash');
 var fs = require('fs');
 var toml = require('toml');
+const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
 var config = util.getConfig();
 var dirs = util.dirs();
@@ -85,10 +86,16 @@ Actor.prototype.setupStrategy = function() {
 
 // HANDLERS
 // process the 1m candles
-Actor.prototype.processCandle = function(candle, done) {
-  this.candle = candle;
+Actor.prototype.processCandle = async function(candle, done) {
+  this.candle = candle;  
 
-  this.strategy.onCandle(_.clone(candle));
+  //strategy developers can implement their ONCANDLE function with or without async
+  if (this.strategy.onCandle instanceof AsyncFunction) {
+     await this.strategy.onCandle(candle);
+  }
+  else {
+     this.strategy.onCandle(candle);
+  }
 
   const completedBatch = this.batcher.write([candle]);
   if(completedBatch) {
