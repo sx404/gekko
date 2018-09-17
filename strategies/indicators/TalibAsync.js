@@ -1,21 +1,25 @@
 // ****************************************************************************
-// *** TulipSync.js                                                         ***
+// *** TalibSync.js                                                         ***
 // ****************************************************************************
-// * Purpose: Use a Tulip indicator inside a strategy like any other native
-// * gekko indicator - in a synchronous way, by excuting tulip functionality
+// * Purpose: Use a Talib indicator inside a strategy like any other native
+// * gekko indicator - in a synchronous way, by executing talib functionality
 // * with await/promise.
-// * This approach also exposes Tulip functionality to multi timeframe
+// * This approach also exposes Talib functionality to multi timeframe
 // * strategies, with custom candle size batching, where asyncIndicatorRunner 
 // * is not available 
 // ****************************************************************************
 
 
-const tulind = require('tulind');
+const util = require('../../core/util')
+const dirs = util.dirs();
+const gekkotalib = require(dirs.core + 'talib');
+const talib = require("talib");
+const log = require(dirs.core + 'log');
 
 
 var Indicator = function(config) {
     this.config = config;
-    this.tulipInput = [];
+    this.talibInput = [];
     this.candleProps = {
         open: [],
         high: [],
@@ -26,22 +30,14 @@ var Indicator = function(config) {
     };
 
     if (config.indicator === undefined)
-        throw Error('TulipSync: You must specify an indicator, e.g. sma or macd');
+        throw Error('TalibSync: You must specify an indicator, e.g. sma or macd');
     else
         this.indName = config.indicator;
 
-    if (config.candleinput === undefined)
-        throw Error('TulipSync: You must specify a candle input type, e.g. "close" or "high,close"');
-    else {
-        var arrCI = config.candleinput.split(',');
-        for (i=0; i < arrCI.length; i++) {
-            this.tulipInput.push(this.candleProps[arrCI[i]]);
-        }
-    }
 
     this.indLength = config.length;
     this.age = 0;
-    console.log('*** Usage info for Tulip indicator', this.indName, ':\n', tulind.indicators[this.indName]);
+    log.debug('*** Usage info for Talib ' + talib.version + ' indicator', this.indName, ':\n', talib.explain(this.indName.toUpperCase()));
 }
 
 
@@ -68,21 +64,21 @@ Indicator.prototype.addCandle = function (candle) {
 Indicator.prototype.update = function (candle) {
     this.addCandle(candle) ;  
 
-    return new Promise((resolve, reject) => {
-        //e.g. this.name = 'sma'
-        tulind.indicators[this.indName].indicator(this.tulipInput, this.config.options, function(err, tulipResults) {
-            //console.log("Result of sma is:");
-            //console.log(tulipResults[0][0]);
-            
+    return new Promise((resolve, reject) => {       
+        talibrunner = gekkotalib[this.indName].create(this.config.options);
+        talibrunner(this.candleProps, function(err, talibResults) {
             if (err) {
                 reject(err);
             }
             else {
-                var arrResult = [];
-                for (let i=0; i<tulipResults.length; i++) {
-                   arrResult.push(tulipResults[i][tulipResults[i].length-1]);
+                var result = false;
+                if (talibResults['outReal'].length > 0) {
+                   result = talibResults['outReal'][talibResults['outReal'].length-1];
                 }
-                resolve(arrResult);
+                else {
+                    result = talibResults;
+                }
+                resolve(result);
             }
         });
     });
