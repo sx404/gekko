@@ -72,7 +72,7 @@ Indicator.prototype.update = function (candle) {
             }
             else {
                 var result = false;
-                if (talibResults['outReal'].length > 0) {
+                if (talibResults['outReal'] !== undefined && talibResults['outReal'].length > 0) {
                    result = talibResults['outReal'][talibResults['outReal'].length-1];
                 }
                 else {
