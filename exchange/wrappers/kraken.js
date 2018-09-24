@@ -1,7 +1,9 @@
 const Kraken = require('kraken-api');
 const moment = require('moment');
 const _ = require('lodash');
-const retry = require('../exchangeUtils').retry;
+const exchangeUtils = require('../exchangeUtils');
+const retry = exchangeUtils.retry;
+const scientificToDecimal = exchangeUtils.scientificToDecimal;
 
 const marketData = require('./kraken-markets.json');
 
@@ -43,8 +45,8 @@ const recoverableErrors = [
   'Empty response',
   'API:Invalid nonce',
   'General:Temporary lockout',
-  'Response code 520',
-  'Response code 525'
+  'Response code 525',
+  'Service:Busy'
 ];
 
 // errors that might mean
@@ -53,6 +55,7 @@ const unknownResultErrors = [
   'Response code 502',
   'Response code 504',
   'Response code 522',
+  'Response code 520',
 ]
 
 const includes = (str, list) => {
@@ -110,7 +113,7 @@ Trader.prototype.handleResponse = function(funcName, callback, nonMutating, payl
               }
 
               // string vs float
-              if(o.descr.price != price) {
+              if(+o.descr.price != price) {
                 return false;
               }
 
@@ -149,7 +152,9 @@ Trader.prototype.handleResponse = function(funcName, callback, nonMutating, payl
               throw 'a';
             }
 
-            if(order.status === 'canceled') {
+            console.log(order);
+
+            if(order.status !== 'canceled') {
               console.log(new Date, 'it still exists, retrying cancel');
               return this.cancelOrder(payload, callback);
             }
@@ -215,8 +220,8 @@ Trader.prototype.getPortfolio = function(callback) {
   const handle = (err, data) => {
     if(err) return callback(err);
 
-    const assetAmount = parseFloat( data.result[this.market.prefixed[1]] );
-    const currencyAmount = parseFloat( data.result[this.market.prefixed[0]] );
+    let assetAmount = parseFloat( data.result[this.market.prefixed[1]] );
+    let currencyAmount = parseFloat( data.result[this.market.prefixed[0]] );
 
     if(!_.isNumber(assetAmount) || _.isNaN(assetAmount)) {
       console.log(`Kraken did not return portfolio for ${this.asset}, assuming 0.`);
@@ -270,11 +275,11 @@ Trader.prototype.roundAmount = function(amount) {
 };
 
 Trader.prototype.roundPrice = function(amount) {
-  return _.round(amount, this.market.pricePrecision);
+  return scientificToDecimal(_.round(amount, this.market.pricePrecision));
 };
 
 Trader.prototype.addOrder = function(tradeType, amount, price, callback) {
-  price = this.roundAmount(price); // only round price, not amount
+  price = this.roundPrice(price); // only round price, not amount
 
   const handle = (err, data) => {
     if(err) {
