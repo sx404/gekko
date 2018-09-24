@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const util = require('util');
 const log = require('../core/log.js');
 const config = require ('../core/util.js').getConfig();
 const candleBatcher = require('../core/candleBatcher');
@@ -8,7 +9,7 @@ const TALIBASYNC = require('../strategies/indicators/TalibAsync.js');
 var stratBB = {};
 
 
-stratBB.init = function () {
+stratBB.init = async function () {
     this.name = 'BB-async';
     this.exposed = false;
     this.cb30 = new candleBatcher(30);
@@ -27,6 +28,14 @@ stratBB.init = function () {
 
     this.bbtalib = new TALIBASYNC({ indicator: 'bbands', length: 20, options: { optInTimePeriod: 20, optInNbDevUp: 2, optInNbDevDn: 2, optInMAType: 0 } });
     this.bbtalib.count = 0;
+
+    //ok, do some lazy stuff here to demonstrate time taking init functions
+    return new Promise((resolve, reject) => {
+        setTimeout(function() {
+           console.log('ok, strat.init execution took a while, but everything is ready now, let the strat start ...');
+           resolve();
+        }, 2000);
+    });
 }
 
 
@@ -90,7 +99,6 @@ stratBB.update = function (candle) {
 
 
 stratBB.log = function () {
-   //log.debug(`*** ${this.start}, MACD: ${this.macd}, RSI: ${this.rsi}, EMA Short: ${this.emashort}, EMA LSong: ${this.emalong}, STOCH K: ${this.stochK}, STOCH D: ${this.stochD} ***`);
 }
 
 

@@ -21,23 +21,23 @@ var Actor = function(done) {
 
   this.strategyName = config.tradingAdvisor.method;
 
-  this.setupStrategy();
+  this.setupStrategy(function() {
+    var mode = util.gekkoMode();
 
-  var mode = util.gekkoMode();
-
-  // the stitcher will try to pump in historical data
-  // so that the strat can use this data as a "warmup period"
-  //
-  // the realtime "leech" market won't use the stitcher
-  if(mode === 'realtime' && !isLeecher) {
-    var Stitcher = require(dirs.tools + 'dataStitcher');
-    var stitcher = new Stitcher(this.batcher);
-    stitcher.prepareHistoricalData(done);
-  } else
-    done();
+    // the stitcher will try to pump in historical data
+    // so that the strat can use this data as a "warmup period"
+    //
+    // the realtime "leech" market won't use the stitcher
+    if(mode === 'realtime' && !isLeecher) {
+      var Stitcher = require(dirs.tools + 'dataStitcher');
+      var stitcher = new Stitcher(this.batcher);
+      stitcher.prepareHistoricalData(done);
+    } else
+      done();
+    });
 }
 
-Actor.prototype.setupStrategy = function() {
+Actor.prototype.setupStrategy = async function(cb) {
 
   if(!fs.existsSync(dirs.methods + this.strategyName + '.js'))
     util.die('Gekko can\'t find the strategy "' + this.strategyName + '"');
@@ -60,6 +60,13 @@ Actor.prototype.setupStrategy = function() {
   }
 
   this.strategy = new WrappedStrategy(stratSettings);
+  if (WrappedStrategy.prototype['init'] instanceof AsyncFunction) {
+    await this.strategy.init();
+  }
+  else {
+    this.strategy.init();
+  }
+
   this.strategy
     .on('advice', this.relayAdvice)
     .on(
@@ -82,6 +89,8 @@ Actor.prototype.setupStrategy = function() {
       this.deferredEmit('stratCandle', candle);
       this.emitStratCandle(candle);
     });
+
+  cb();
 }
 
 // HANDLERS

@@ -70,9 +70,6 @@ var Base = function(settings) {
   if(!this.onCandle)
     this.onCandle = function() {};
 
-  // let's run the implemented starting point
-  this.initBase();
-
   if(!config.debug || !this.log)
     this.log = function() {};
 
@@ -87,15 +84,6 @@ var Base = function(settings) {
 // teach our base trading method events
 util.makeEventEmitter(Base);
 
-Base.prototype.initBase = async function() {
-  //strategy developers can implement their INIT function with or without async
-  if (Base.prototype['init'] instanceof AsyncFunction) {
-     await this.init();
-  }
-  else {
-     this.init();
-  }
-}
 
 Base.prototype.tick = function(candle, done) {
   this.age++;
