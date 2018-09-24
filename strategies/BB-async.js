@@ -50,6 +50,11 @@ stratBB.onCandle30M = async function (candle) {
     this.bbtalib.count++;
 
     if (this.bb.count >= this.requiredHistory) {
+        this.bbtalib.lowerBand = this.bbtalib.result['outRealLowerBand'][this.bbtalib.result['outRealLowerBand'].length-1];
+        this.bbtalib.middleBand = this.bbtalib.result['outRealMiddleBand'][this.bbtalib.result['outRealMiddleBand'].length-1];
+        this.bbtalib.upperBand = this.bbtalib.result['outRealUpperBand'][this.bbtalib.result['outRealUpperBand'].length-1];
+        this.bbtalib.bbwidth = ((this.bbtalib.upperBand - this.bbtalib.lowerBand) / candle.close) * 100;
+
         this.exec(candle);
     }
 }
@@ -62,10 +67,6 @@ stratBB.onCandle = async function (candle) {
 
 
 stratBB.exec = function(candle) {
-    let bbtalibLower = this.bbtalib.result['outRealLowerBand'][this.bbtalib.result['outRealLowerBand'].length-1];
-    let bbtalibMiddle = this.bbtalib.result['outRealMiddleBand'][this.bbtalib.result['outRealMiddleBand'].length-1];
-    let bbtalibUpper = this.bbtalib.result['outRealUpperBand'][this.bbtalib.result['outRealUpperBand'].length-1];
-
     console.log(
         candle.start.format(),
         '::BBtulip lower ' + this.bb.result[0],
@@ -74,9 +75,10 @@ stratBB.exec = function(candle) {
     );
     console.log(
         candle.start.format(),
-        '::BBtalib lower ' + bbtalibLower,
-        '::BBtalib middle ' + bbtalibMiddle,
-        '::BBtalib upper ' + bbtalibUpper,
+        '::BBtalib lower ' + this.bbtalib.lowerBand,
+        '::BBtalib middle ' + this.bbtalib.middleBand,
+        '::BBtalib upper ' + this.bbtalib.upperBand,
+        '::BBwidth', this.bbtalib.bbwidth, '%',
         '\n\n'
     );
 }
