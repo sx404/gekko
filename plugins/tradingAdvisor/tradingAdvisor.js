@@ -66,6 +66,7 @@ Actor.prototype.setupStrategy = async function(cb) {
   else {
     this.strategy.init();
   }
+  this.strategy.startRunner();
 
   this.strategy
     .on('advice', this.relayAdvice)
