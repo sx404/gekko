@@ -72,7 +72,13 @@ var Base = function(settings) {
 
   if(!config.debug || !this.log)
     this.log = function() {};
+}
 
+// teach our base trading method events
+util.makeEventEmitter(Base);
+
+
+Base.prototype.startRunner = function() {
   this.setup = true;
 
   if(_.size(this.asyncIndicatorRunner.talibIndicators) || _.size(this.asyncIndicatorRunner.tulipIndicators))
@@ -80,9 +86,6 @@ var Base = function(settings) {
   else
     delete this.asyncIndicatorRunner;
 }
-
-// teach our base trading method events
-util.makeEventEmitter(Base);
 
 
 Base.prototype.tick = function(candle, done) {
