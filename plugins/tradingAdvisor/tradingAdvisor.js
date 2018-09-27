@@ -2,6 +2,7 @@ var util = require('../../core/util');
 var _ = require('lodash');
 var fs = require('fs');
 var toml = require('toml');
+const WrappedStrategy = require('./baseTradingMethod');
 const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
 var config = util.getConfig();
@@ -48,8 +49,6 @@ Actor.prototype.setupStrategy = async function(cb) {
 
   // bind all trading strategy specific functions
   // to the WrappedStrategy.
-  const WrappedStrategy = require('./baseTradingMethod');
-
   _.each(strategy, function(fn, name) {
     WrappedStrategy.prototype[name] = fn;
   });
@@ -100,8 +99,8 @@ Actor.prototype.processCandle = async function(candle, done) {
   this.candle = candle;  
 
   //strategy developers can implement their ONCANDLE function with or without async
-  if (this.strategy.onCandle instanceof AsyncFunction) {
-     await this.strategy.onCandle(candle);
+  if (WrappedStrategy.prototype['onCandle'] instanceof AsyncFunction) {
+    await this.strategy.onCandle(candle);
   }
   else {
      this.strategy.onCandle(candle);
