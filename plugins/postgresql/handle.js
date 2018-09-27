@@ -35,7 +35,7 @@ const connectionString = config.postgresql.connectionString;
 const checkClient = new pg.Pool({
   connectionString: connectionString + '/postgres',
 });
-const pool = new pg.Pool({
+var pool = new pg.Pool({
   connectionString: connectionString + '/' + dbName,
 });
 
@@ -109,6 +109,5 @@ const upsertTables = () => {
     }
   });
 }
-
 
 module.exports = pool;

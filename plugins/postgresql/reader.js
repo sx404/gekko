@@ -5,12 +5,17 @@ var log = require(util.dirs().core + 'log');
 
 var handle = require('./handle');
 var postgresUtil = require('./util');
+const pg = require('pg');
 
 const { Query } = require('pg');
 
-var Reader = function() {
+var Reader = function(mydb) {
   _.bindAll(this);
-  this.db = handle;
+
+  if (mydb === undefined)
+     this.db = handle;
+  else
+     this.db = new pg.Pool({ connectionString: config.postgresql.connectionString + '/' + mydb, });
 }
 
 // returns the furthest point (up to `from`) in time we have valid data from
@@ -113,14 +118,19 @@ Reader.prototype.tableExists = function (name, next) {
   });  
 }
 
-Reader.prototype.get = function(from, to, what, next) {
+Reader.prototype.get = function(from, to, what, next, mytable) {
   if(what === 'full'){
     what = '*';
+  }
+
+  var querytable = postgresUtil.table('candles');
+  if (mytable !== undefined) {
+    querytable = mytable;
   }
   
   this.db.connect((err,client,done) => {
     var query = client.query(new Query(`
-    SELECT ${what} from ${postgresUtil.table('candles')}
+    SELECT ${what} from ${querytable}
     WHERE start <= ${to} AND start >= ${from}
     ORDER BY start ASC
     `));
