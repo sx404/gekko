@@ -20,7 +20,7 @@ var strat = {};
 
 strat.init = function () {
   this.name = 'Forecast';
-  this.trend = {
+  this.trendFC = {
     direction: 'none',
     duration: 0,
     persisted: false,
@@ -31,15 +31,10 @@ strat.init = function () {
   this.Period = 13;
 
   this.requiredHistory = this.tradingAdvisor.historySize;
-  //this.addTulipIndicator('fosc', 'fosc', { optInTimePeriod: this.Period });
-  //this.addTalibIndicator('ht_dcperiod', 'ht_dcperiod', {});
-  //this.addTalibIndicator('ht_trendline', 'ht_trendline', {});
-  //this.addTulipIndicator('msw', 'msw', { optInTimePeriod: this.Period });
-  //this.addTulipIndicator('tsf', 'tsf', { optInTimePeriod: this.Period });
 
   this.tulipFOSC = new TULIPASYNC({ indicator: 'fosc', length: 500, candleinput: 'close', options:[ this.Period ] });
   this.talibHTDCPERIOD = new TALIBASYNC({ indicator: 'ht_dcperiod', length: 500, options:[ this.Period ] });
-  this.talibHTTRENDLINE = new TALIBASYNC({ indicator: 'ht_trendline', length: 500, options:[ this.Period ] });
+  this.talibHTtrendLINE = new TALIBASYNC({ indicator: 'ht_trendline', length: 500, options:[ this.Period ] });
   this.tulipMSW = new TULIPASYNC({ indicator: 'msw', length: 500, candleinput: 'close', options:[ this.Period ] });
   this.tulipTSF = new TULIPASYNC({ indicator: 'tsf', length: 500, candleinput: 'close', options:[ this.Period ] });
 }
@@ -48,20 +43,12 @@ strat.init = function () {
 strat.update = async function (candle) {
   if (!this.Scale) 
      this.Scale = getScale(candle.close);
-
-  //this.Period = Math.round(this.talibIndicators.ht_dcperiod.result['outReal']);
-  //this.ht_trendline = Math.round(this.talibIndicators.ht_trendline.result['outReal'] * this.Scale) / this.Scale;
-  //this.fosc = Math.round(this.tulipIndicators.fosc.result['result'] * this.Scale) / this.Scale;
-  //this.mswSine = Math.round(this.tulipIndicators.msw.result['mswSine'] * this.Scale) / this.Scale;
-  //this.mswLead = Math.round(this.tulipIndicators.msw.result['mswLead'] * this.Scale) / this.Scale;
-  //this.tsf = Math.round(this.tulipIndicators.tsf.result['result'] * this.Scale) / this.Scale;
-
   
   this.talibHTDCPERIOD.result = await this.talibHTDCPERIOD.update(candle);
   this.Period = Math.round(this.talibHTDCPERIOD.result);
 
-  this.talibHTTRENDLINE.result = await this.talibHTTRENDLINE.update(candle);
-  this.ht_trendline = Math.round(this.talibHTTRENDLINE.result * this.Scale) / this.Scale;
+  this.talibHTtrendLINE.result = await this.talibHTtrendLINE.update(candle);
+  this.ht_trendline = Math.round(this.talibHTtrendLINE.result * this.Scale) / this.Scale;
   
   this.tulipFOSC.result = await this.tulipFOSC.update(candle);
   this.fosc = Math.round(this.tulipFOSC.result[0] * this.Scale) / this.Scale;
@@ -80,7 +67,7 @@ strat.loggg = function (candle) {
   log.info('\t', 'close:', candle.close)
   log.info('\t', 'Forecast Oscillator:', this.fosc)
   log.info('\t', 'Modified Sine Wave:', this.mswSine, this.mswLead)
-  log.info('\t', 'Trendline:', this.ht_trendline)
+  log.info('\t', 'trendline:', this)
   log.info('\t', 'Time Series Forecast:', this.tsf)
   log.info('\t\r')
 }
@@ -88,49 +75,53 @@ strat.loggg = function (candle) {
 
 strat.check = function (candle) {  
   const all_long = [
-    //this.mswSine > this.mswLead,
+    this.mswSine > this.mswLead,
     this.tsf > this.ht_trendline && typeof(this.tsf) === typeof(this.ht_trendline),
     this.fosc > 1,
-    this.trend.direction !== 'long'
+    this.trendFC.direction !== 'long'
   ].reduce((total, long) => long && total, true)
 
   const all_short = [
     //this.mswSine < this.mswLead,
     this.tsf < this.ht_trendline && typeof(this.tsf) === typeof(this.ht_trendline),
-    //this.fosc < -0.5,
-    this.trend.direction !== 'short'
+    this.fosc < -0.5,
+    this.trendFC.direction !== 'short'
   ].reduce((total, short) => short && total, true)
 
   if (all_long) {
-    if (this.trend.direction !== 'long')
-      this.trend = {
+    if (this.trendFC.direction !== 'long')
+      this.trendFC = {
         duration: 0,
         persisted: false,
         direction: 'long',
         adviced: false
       }
-    this.trend.duration++
-    log.debug('In uptrend since', this.trend.duration, 'candle(s)')
-    if (this.trend.duration >= 1)
-      this.trend.persisted = true
-    if (this.trend.persisted && !this.trend.adviced) {
-      this.trend.adviced = true;
+    this.trendFC.duration++
+    //log.debug('In uptrendFC since', this.trendFC.duration, 'candle(s)')
+    if (this.trendFC.duration >= 1)
+      this.trendFC.persisted = true
+    if (this.trendFC.persisted && !this.trendFC.adviced && !this.exposedFC) {
+      this.trendFC.adviced = true;
+      this.exposedFC = true;
+      log.debug('BUY with Forecast strategy...');
       this.advice('long');
     }
   } else if (all_short) {
-    if (this.trend.direction !== 'short')
-      this.trend = {
+    if (this.trendFC.direction !== 'short')
+      this.trendFC = {
         duration: 0,
         persisted: false,
         direction: 'short',
         adviced: false
       }
-    this.trend.duration++;
-    log.debug('In downtrend since', this.trend.duration, 'candle(s)')
-    if (this.trend.duration >= 1)
-      this.trend.persisted = true;
-    if (this.trend.persisted && !this.trend.adviced) {
-      this.trend.adviced = true;
+    this.trendFC.duration++;
+    //log.debug('In downtrend since', this.trendFC.duration, 'candle(s)')
+    if (this.trendFC.duration >= 1)
+      this.trendFC.persisted = true;
+    if (this.trendFC.persisted && !this.trendFC.adviced && this.exposedFC) {
+      this.trendFC.adviced = true;
+      this.exposedFC = false;
+      log.debug('SELL with Forecast strategy...');
       this.advice('short');
     }
   }
