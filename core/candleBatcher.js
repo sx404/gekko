@@ -49,10 +49,19 @@ CandleBatcher.prototype.check = function() {
   this.smallCandles = [];
 }
 
-CandleBatcher.prototype.flush = function() {
+CandleBatcher.prototype.regAsyncHandler = function(handler) {
+   this.asynchandler = handler;
+}
+
+CandleBatcher.prototype.flush = async function() {
   _.each(
     this.calculatedCandles,
-    candle => this.emit('candle', candle)
+    async (candle) => {
+      this.emit('candle', candle);
+      
+      if (this.asynchandler !== undefined)
+        await this.asynchandler(candle);
+    }
   );
 
   this.calculatedCandles = [];
@@ -73,6 +82,7 @@ CandleBatcher.prototype.calculate = function() {
       candle.volume += m.volume;
       candle.vwp += m.vwp * m.volume;
       candle.trades += m.trades;
+      candle.end = m.start;
       return candle;
     },
     first
