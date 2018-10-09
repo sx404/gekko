@@ -8,10 +8,11 @@ const EventEmitter = require('events');
 // @param trail: fixed offset from the price
 // @param onTrigger: fn to call when the stop triggers
 class TrailingStop extends EventEmitter {
-  constructor({trail, initialPrice, onTrigger}) {
+  constructor({trail, initialPrice, trailPercentage, onTrigger}) {
     super();
 
     this.trail = trail;
+    this.trailPercentage = trailPercentage;
     this.isLive = true;
     this.onTrigger = onTrigger;
 

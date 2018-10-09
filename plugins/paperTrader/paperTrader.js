@@ -132,18 +132,17 @@ PaperTrader.prototype.processAdvice = function(advice) {
   } else if(advice.recommendation === 'long') {
     action = 'buy';
 
+    // clean up potential old stop trigger
+    if(this.activeStopTrigger) {
+      this.deferredEmit('triggerAborted', {
+        id: this.activeStopTrigger.id,
+        date: advice.date
+      });
+
+      delete this.activeStopTrigger;
+    }
+    
     if(advice.trigger) {
-
-      // clean up potential old stop trigger
-      if(this.activeStopTrigger) {
-        this.deferredEmit('triggerAborted', {
-          id: this.activeStopTrigger.id,
-          date: advice.date
-        });
-
-        delete this.activeStopTrigger;
-      }
-
       this.createTrigger(advice);
     }
   } else {
@@ -168,7 +167,6 @@ PaperTrader.prototype.processAdvice = function(advice) {
 
   this.relayPortfolioChange();
   this.relayPortfolioValueChange();
-
   this.deferredEmit('tradeCompleted', {
     id: this.tradeId,
     adviceId: advice.id,
@@ -184,7 +182,8 @@ PaperTrader.prototype.processAdvice = function(advice) {
     status: 'tradeCompleted',
     trigger: {
       origin: mytrigger !== undefined ? mytrigger.type : 'advice',
-      trailPercentage: mytrigger !== undefined ? mytrigger.trailPercentage : undefined
+      trailPercentage: mytrigger !== undefined ? mytrigger.trailPercentage : undefined,
+      strategy: mytrigger !== undefined ? advice.trigger.strategy : undefined
     } 
   });
 }
@@ -213,6 +212,7 @@ PaperTrader.prototype.createTrigger = function(advice) {
     this.activeStopTrigger = {
       id: triggerId,
       adviceId: advice.id,
+      strategy: trigger.strategy,
       instance: new TrailingStop({
         initialPrice: this.price,
         trail: trigger.trailValue,
@@ -257,16 +257,16 @@ PaperTrader.prototype.onStopTrigger = function(trail, trailPercentage) {
   
   let adviceId = this.activeStopTrigger.adviceId;
   //delete this.activeStopTrigger;
-
   this.deferredEmit('advice', { 
     recommendation: 'short', 
     date, 
     id: this.tradeId, 
     trigger: {
       type: 'trailingStop',
-      trail,
-      trailPercentage,
-      adviceId
+      trail: this.activeStopTrigger.instance.trail,
+      trailPercentage: this.activeStopTrigger.instance.trailPercentage,
+      adviceId: this.activeStopTrigger.adviceId,
+      strategy: this.activeStopTrigger.strategy
     }
   });
 }
