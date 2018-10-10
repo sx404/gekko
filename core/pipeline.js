@@ -117,7 +117,7 @@ var pipeline = (settings) => {
           if(!emitters[sub.emitter]) {
             if(!plugin.meta.greedy) {
 
-              let emitterMessage;
+              let emitterMessage = '';
               if(sub.emitters) {
                 emitterMessage = 'all of the emitting plugins [ ';
                 emitterMessage += sub.emitters.join(', ');

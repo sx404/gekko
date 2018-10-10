@@ -12,14 +12,14 @@ var CandleBatcher = require(dirs.core + 'candleBatcher');
 
 var moment = require('moment');
 var isLeecher = config.market && config.market.type === 'leech';
+var batcher;
 
 var Actor = function(done) {
   _.bindAll(this);
 
   this.done = done;
 
-  this.batcher = new CandleBatcher(config.tradingAdvisor.candleSize);
-
+  batcher = new CandleBatcher(config.tradingAdvisor.candleSize);
   this.strategyName = config.tradingAdvisor.method;
 
   this.setupStrategy(function() {
@@ -31,7 +31,7 @@ var Actor = function(done) {
     // the realtime "leech" market won't use the stitcher
     if(mode === 'realtime' && !isLeecher) {
       var Stitcher = require(dirs.tools + 'dataStitcher');
-      var stitcher = new Stitcher(this.batcher);
+      var stitcher = new Stitcher(batcher);
       stitcher.prepareHistoricalData(done);
     } else
       done();
@@ -83,7 +83,7 @@ Actor.prototype.setupStrategy = async function(cb) {
   this.strategy
     .on('tradeCompleted', this.processTradeCompleted);
 
-  this.batcher
+  batcher
     .on('candle', _candle => {
       const { id, ...candle } = _candle;
       this.deferredEmit('stratCandle', candle);
@@ -106,14 +106,14 @@ Actor.prototype.processCandle = async function(candle, done) {
      this.strategy.onCandle(candle);
   }
 
-  const completedBatch = this.batcher.write([candle]);
+  const completedBatch = batcher.write([candle]);
   if(completedBatch) {
     this.next = done;
   } else {
     done();
     this.next = false;
   }
-  this.batcher.flush();
+  batcher.flush();
    
 }
 

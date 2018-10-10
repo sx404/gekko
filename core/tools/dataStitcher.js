@@ -221,7 +221,6 @@ Stitcher.prototype.seedLocalData = function(from, to, next) {
       row.start = moment.unix(row.start);
       return row;
     });
-
     this.batcher.write(rows);
     this.batcher.flush();
     this.reader.close();
