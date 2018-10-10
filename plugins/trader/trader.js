@@ -345,7 +345,7 @@ Trader.prototype.createOrder = function(side, amount, advice, id) {
           this.deferredEmit('triggerCreated', {
             id: triggerId,
             at: advice.date,
-            type: 'trialingStop',
+            type: 'trailingStop',
             properties: {
               trail: trigger.trailValue,
               initialPrice: summary.price,
