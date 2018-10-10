@@ -1,13 +1,14 @@
 # Gekko [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
-Crypto Trading Bot based on askmike/gekko v0.6.x
+Crypto Trading Bot, askmike/gekko v0.6.6 based
 
 | Gekko with Telegram bot | Gekko with Telegram in admin mode |
 | ------------------------ | --------------------------------- |
 | ![Gekko with telegram bot](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-crypto-overview.jpg) | ![Gekko with telegram in admin mode](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-admin-sell.jpg) |
 
-> **See screenshots folder**
+**See screenshots folder**
 
+- Core enhancements to write async trading strategies with new async tulip and talib indicator wrappers. The introduction of the asyc/await pattern allows developers to write multi-timeframe and multi-market strategies using talib/tulip indicators within any multi-timeframe. The core is able to wait for async operations to finish, like db reading or internet access, without running into race conditions.
 - Rewritten telegram bot
   - User mode
     - list trading pair, strategy and candle size
@@ -23,26 +24,16 @@ Crypto Trading Bot based on askmike/gekko v0.6.x
 - New command line options:
   - Evaluate plugin dependencies and automatically enable a plugin when it is mandatory inside a certain mode, e.g. enable the Paper Trader when in backtest mode. See new mandatoryOn property in plugins.js file.
   - New --set command line option to override config settings, e.g. --set debug=true to enable the debug mode output - no need to touch the config.js for a quick debug run
-- Additional exchange support (using ccxt)
+- Additional exchanges (ccxt), supporting market watch, history import, backtesting and live trading
   - HitBtc exchange support
-    - Market watcher
-    - History import
-    - Backtesting
-    - Live trading
   - HuobiPro exchange support
-    - Market watcher
-    - History import from Coinmarketcap
-    - Backtesting
-    - Live trading
   - OKEX exchange support
-    - Market watcher
-    - History import from Coinmarketcap
-    - Backtesting
-    - Live trading
-  - Extended log output
+- Coinmarketcap importer
+  - Several exchanges, like HuobiPro and OKEX do not offer a large timeframe of history data. The universal Coinmarketcap importer allows fast imports for nearly every market to enable backtesting (based on 5 min. candles)
+- Extended log output
     - mailer.js informs with buy and sell events by mail (different to go short/long advices)
     - More info during paper trader backtesting
-  - Added often used package dependencies by default to get started quickly (npm install)
+- Added often used package dependencies by default to get started quickly (npm install)
 
 ## Getting started
 
