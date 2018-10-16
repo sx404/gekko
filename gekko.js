@@ -1,6 +1,6 @@
 /*
 
-  Gekko is a Bitcoin trading bot for popular Bitcoin exchanges written 
+  Gekko is a Crypto trading bot for popular Bitcoin exchanges written 
   in node, it features multiple trading methods using technical analysis.
 
   If you are interested in how Gekko works, read more about Gekko's 
@@ -19,22 +19,23 @@
   it is working.
 
 */
+const colors = require('colors/safe');
 
 console.log(`
     ______   ________  __    __  __    __   ______
    /      \\ /        |/  |  /  |/  |  /  | /      \\
-  /$$$$$$  |$$$$$$$$/ $$ | /$$/ $$ | /$$/ /$$$$$$  |
-  $$ | _$$/ $$ |__    $$ |/$$/  $$ |/$$/  $$ |  $$ |
-  $$ |/    |$$    |   $$  $$<   $$  $$<   $$ |  $$ |
-  $$ |$$$$ |$$$$$/    $$$$$  \\  $$$$$  \\  $$ |  $$ |
-  $$ \\__$$ |$$ |_____ $$ |$$  \\ $$ |$$  \\ $$ \\__$$ |
-  $$    $$/ $$       |$$ | $$  |$$ | $$  |$$    $$/ 
-   $$$$$$/  $$$$$$$$/ $$/   $$/ $$/   $$/  $$$$$$/
+  /$$$$$$  |€€€€€€€€/ $$ | /$$/ $$ | /$$/ /$$$$$$  |
+  $$ | _$$/ €€ |__    $$ |/$$/  $$ |/$$/  $$ |  $$ |
+  $$ |/    |€€    |   $$  $$<   $$  $$<   $$ |  $$ |
+  $$ |$$$$ |€€€€€/    $$$$$  \\  $$$$$  \\  $$ |  $$ |            ${colors.red('___')}      
+  $$ \\__$$ |€€ |_____ $$ |$$  \\ $$ |$$  \\ $$ \\__$$ |           ${colors.red('/_\\ \`*')}     
+  $$    $$/ €€       |$$ | $$  |$$ | $$  |$$    $$/           ${colors.green('(o o)')}     
+   $$$$$$/  €€€€€€€€/ $$/   $$/ $$/   $$/  $$$$$$/       ${colors.green('-ooO--(_)--Ooo-')}
 `);
 
 const util = require(__dirname + '/core/util');
 
-console.log('\tGekko v' + util.getVersion());
+console.log(colors.red('\tGekko v' + util.getVersion()));
 console.log('\tI\'m gonna make you rich, Bud Fox.', '\n\n');
 
 const dirs = util.dirs();
