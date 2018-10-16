@@ -8,6 +8,7 @@ const util = require('../../core/util.js');
 const dirs = util.dirs();
 const mode = util.gekkoMode();
 const log = require(dirs.core + 'log');
+const colors = require('colors/safe');
 
 const Logger = function(watchConfig) {
   this.currency = watchConfig.currency;
@@ -33,7 +34,7 @@ Logger.prototype.logReport = function(trade, report) {
   log.info(`(PROFIT REPORT) current balance:\t\t ${current} ${this.currency}`);
   log.info(
     `(PROFIT REPORT) profit:\t\t\t\t ${this.round(report.profit)} ${this.currency}`,
-    `(${this.round(report.relativeProfit)}%)`
+    `(${report.relativeProfit > 0 ? colors.green(this.round(report.relativeProfit)+'%') : colors.green(this.round(report.relativeProfit)+'%')})`
   );
 }
 
@@ -101,7 +102,7 @@ if(mode === 'backtest') {
     log.info();
     log.info(`(PROFIT REPORT) start price:\t\t\t ${report.startPrice} ${this.currency}`);
     log.info(`(PROFIT REPORT) end price:\t\t\t ${report.endPrice} ${this.currency}`);
-    log.info(`(PROFIT REPORT) Market:\t\t\t\t ${this.round(report.market)}%`);
+    log.info(`(PROFIT REPORT) Market:\t\t\t\t ${report.market > 0 ? colors.green(this.round(report.market)) : colors.red(this.round(report.market)+'%')}`);
     log.info();
     log.info(`(PROFIT REPORT) amount of trades:\t\t ${report.trades}`);
 
@@ -114,6 +115,10 @@ if(mode === 'backtest') {
   
     log.info(`(PROFIT REPORT) sharpe ratio:\t\t\t ${report.sharpe}`);
     log.info(`(PROFIT REPORT) expected downside:\t\t ${report.downside}`);
+
+    if (report.relativeProfit > 300) {
+      log.info(`(PROFIT REPORT) ${colors.yellow('Ole, Ole, Ole, dicke (• )( •) Kartoffelsalat, Lambo time :-)')}`);
+    }
   }
   
   Logger.prototype.handleRoundtrip = function(rt) {
