@@ -8,9 +8,10 @@ var moment = require('moment');
 var adapter = config[config.adapter];
 var Reader = require(dirs.gekko + adapter.path + '/reader');
 var daterange = config.backtest.daterange;
+var requiredHistory = config.tradingAdvisor.candleSize * config.tradingAdvisor.historySize;
 
 var to = moment.utc(daterange.to);
-var from = moment.utc(daterange.from);
+var from = moment.utc(daterange.from).subtract(requiredHistory, 'm');
 
 if(to <= from)
   util.die('This daterange does not make sense.')
@@ -39,6 +40,10 @@ var Market = function() {
   log.write('');
 
   this.reader = new Reader();
+  
+
+  log.debug('*** Requested', requiredHistory, 'minutes of warmup history data, so reading db since', from.format(), 'UTC', 'and start backtest at', daterange.from, 'UTC');
+
   this.batchSize = config.backtest.batchSize;
   this.iterator = {
     from: from.clone(),
