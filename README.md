@@ -35,6 +35,10 @@ Crypto Trading Bot, askmike/gekko v0.6.6 based
     - More info during paper trader backtesting
 - Added often used package dependencies by default to get started quickly (npm install)
 
+## Backtest examples
+
+- [T5mainasync strategy, ETHEUR, 20180101-20181001](https://git.io/fxgdH)
+
 ## Getting started
 
 - git clone https://github.com/mark-sch/gekko
