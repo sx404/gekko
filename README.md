@@ -50,7 +50,8 @@ Crypto Trading Bot, askmike/gekko v0.6.6 based
 - cd exchange
 - npm install
 - cd ..
-- npm start
+- node gekko --config sample-eth.js --import --set debug=true
+- node gekko --config sample-eth.js --backtest --set debug=true
 
 from time to time the exchange markets should be updated with a utility - to get new coin pairs:
 
