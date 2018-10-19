@@ -20,8 +20,8 @@ stratMain.init = function (context) {
     obj = this;
     this.name = 'T5mainasync';
     
-    this.exposedMain = false;
-    this.trendMain = {
+    this.context.exposedMain = false;
+    this.context.trendMain = {
         direction: 'none',
         duration: 0,
         persisted: false,
@@ -78,7 +78,7 @@ stratMain.onCandle60M = async function (candle) {
     //define necessary entry trend strength based on bollinger band width and ppo
     obj.tema60M.treshold = 100.065; 
     
-    if ((obj.tema60M.trend > obj.tema60M.treshold) || obj.exposedMain) {
+    if ((obj.tema60M.trend > obj.tema60M.treshold) || this.context.exposedMain) {
         obj.check60M(candle);
     }       
 }
@@ -121,8 +121,8 @@ stratMain.check60M = function(candle) {
     */
 
     if (this.emashort60M.result > this.emalong60M.result && this.stoch60M.stochk > this.stoch60M.stochd && this.macd60M.macd > this.MACDhigh && this.rsi60M.result > this.RSIhigh) {
-        if (this.trendMain.direction !== 'up') {
-            this.trendMain = {
+        if (this.context.trendMain.direction !== 'up') {
+            this.context.trendMain = {
                 duration: 0,
                 persisted: false,
                 direction: 'up',
@@ -130,23 +130,21 @@ stratMain.check60M = function(candle) {
             };
         }
 
-        this.trendMain.duration++;
+        this.context.trendMain.duration++;
 
-        if (this.trendMain.duration >= this.persistance) {
-            this.trendMain.persisted = true;
+        if (this.context.trendMain.duration >= this.persistance) {
+            this.context.trendMain.persisted = true;
         }
 
-        if (this.trendMain.persisted && !this.trendMain.adviced) {
-            this.trendMain.adviced = true;
-            this.exposedMain = true;
+        if (this.context.trendMain.persisted && !this.context.trendMain.adviced) {
+            this.context.trendMain.adviced = true;
+            this.context.exposedMain = true;
             log.debug('BUY with 60M main strategy...');
             this.context.advice('long');
-        } else {
-            this.context.advice();
         }
     } else if (this.emashort60M.result < this.emalong60M.result && this.stoch60M.stochk < this.stoch60M.stochd && this.macd60M.macd < this.MACDlow && this.rsi60M.result < this.RSIlow) {
-        if (this.trendMain.direction !== 'down') {
-            this.trendMain = {
+        if (this.context.trendMain.direction !== 'down') {
+            this.context.trendMain = {
                 duration: 0,
                 persisted: false,
                 direction: 'down',
@@ -154,22 +152,18 @@ stratMain.check60M = function(candle) {
             };
         }
 
-        this.trendMain.duration++;
+        this.context.trendMain.duration++;
 
-        if (this.trendMain.duration >= this.persistance) {
-            this.trendMain.persisted = true;
+        if (this.context.trendMain.duration >= this.persistance) {
+            this.context.trendMain.persisted = true;
         }
 
-        if (this.trendMain.persisted && !this.trendMain.adviced) {
-            this.trendMain.adviced = true;
-            this.exposedMain = false;
+        if (this.context.trendMain.persisted && !this.context.trendMain.adviced) {
+            this.context.trendMain.adviced = true;
+            this.context.exposedMain = false;
             log.debug('SELL with 60M main strategy...');
             this.context.advice('short');
-        } else {
-            this.context.advice();
         }
-    } else {
-        this.context.advice();
     }
 }
 
