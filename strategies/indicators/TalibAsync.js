@@ -37,7 +37,7 @@ var Indicator = function(config) {
 
     this.indLength = config.length;
     this.age = 0;
-    log.debug('*** Usage info for Talib ' + talib.version + ' indicator', this.indName, ':\n', talib.explain(this.indName.toUpperCase()));
+    //log.debug('*** Usage info for Talib ' + talib.version + ' indicator', this.indName, ':\n', talib.explain(this.indName.toUpperCase()));
 }
 
 

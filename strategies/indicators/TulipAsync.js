@@ -44,7 +44,7 @@ var Indicator = function(config) {
 
     this.indLength = config.length;
     this.age = 0;
-    log.debug('*** Usage info for Tulip indicator', this.indName, ':\n', tulind.indicators[this.indName]);
+    //log.debug('*** Usage info for Tulip indicator', this.indName, ':\n', tulind.indicators[this.indName]);
 }
 
 
