@@ -98,7 +98,6 @@ Market.prototype.processCandles = function(err, candles) {
   }
 
   _.each(candles, function(c, i) {
-    //console.log(c);
     c.start = moment.unix(c.start);
     this.push(c);
   }, this);
@@ -110,8 +109,11 @@ Market.prototype.processCandles = function(err, candles) {
     to: this.iterator.from.clone().add(this.batchSize * 2, 'm').subtract(1, 's')
   }
 
-  if(!this.closed)
-    this.get();
+  if(!this.closed) {
+    setTimeout(() => {
+      this.get();
+    }, 5);
+  }
 }
 
 module.exports = Market;
