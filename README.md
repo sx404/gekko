@@ -38,6 +38,9 @@ Crypto Trading Bot, askmike/gekko v0.6.6 based
 ## Backtest examples
 
 - [T5mainasync strategy, ETHEUR, 20180101-20181001](https://git.io/fxgdH)
+- [T5multimarket_strategy, ETHEUR, 20180101-20181001](https://git.io/fxrSq)
+- [T5multitime strategy, ETHEUR, 20180101-20181001](https://git.io/fxrSa)
+- [T5multimix strategy, ETHEUR, 20180101-20181001](https://git.io/fxrSb)
 
 ## Getting started
 
