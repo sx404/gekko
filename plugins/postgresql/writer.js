@@ -53,7 +53,7 @@ Store.prototype.writeCandles = function() {
 
 var processCandle = function(candle, done) {
   this.cache.push(candle);
-  if (this.cache.length > 1)
+  if (this.cache.length > 0)
     this.writeCandles();
 
   done();
