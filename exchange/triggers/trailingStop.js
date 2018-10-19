@@ -16,6 +16,8 @@ class TrailingStop extends EventEmitter {
     this.isLive = true;
     this.onTrigger = onTrigger;
 
+    this.initialPrice = initialPrice;
+    this.targetPrice = initialPrice + this.trail;
     this.previousPrice = initialPrice;
     this.trailingPoint = initialPrice - this.trail;
   }
@@ -26,6 +28,11 @@ class TrailingStop extends EventEmitter {
     }
 
     if(price > this.trailingPoint + this.trail) {
+      if (price > this.targetPrice) {
+         this.trail = this.trail / 10;
+         this.targetPrice = this.targetPrice * 1.1;
+      }
+      
       this.trailingPoint = price - this.trail;
     }
 
