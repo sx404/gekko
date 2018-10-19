@@ -78,22 +78,22 @@ strat.check = function (candle) {
     this.mswSine > this.mswLead,
     this.tsf > this.ht_trendline && typeof(this.tsf) === typeof(this.ht_trendline),
     this.fosc > 1,
-    this.trendFC.direction !== 'long'
+    this.trendFC.direction !== 'up'
   ].reduce((total, long) => long && total, true)
 
   const all_short = [
     //this.mswSine < this.mswLead,
     this.tsf < this.ht_trendline && typeof(this.tsf) === typeof(this.ht_trendline),
     this.fosc < -0.5,
-    this.trendFC.direction !== 'short'
+    this.trendFC.direction !== 'down'
   ].reduce((total, short) => short && total, true)
 
   if (all_long) {
-    if (this.trendFC.direction !== 'long')
+    if (this.trendFC.direction !== 'up')
       this.trendFC = {
         duration: 0,
         persisted: false,
-        direction: 'long',
+        direction: 'up',
         adviced: false
       }
     this.trendFC.duration++
@@ -107,11 +107,11 @@ strat.check = function (candle) {
       this.advice('long');
     }
   } else if (all_short) {
-    if (this.trendFC.direction !== 'short')
+    if (this.trendFC.direction !== 'down')
       this.trendFC = {
         duration: 0,
         persisted: false,
-        direction: 'short',
+        direction: 'down',
         adviced: false
       }
     this.trendFC.duration++;
