@@ -305,7 +305,8 @@ Trader.prototype.addOrder = function(tradeType, amount, price, callback) {
   const reqData = {
     pair: this.pair,
     type: tradeType.toLowerCase(),
-    ordertype: 'limit',
+    ordertype: this.ordertype === 'market' ? 'market' : 'limit',
+    trading_agreement: 'agree',
     price: price,
     volume: amount
   };

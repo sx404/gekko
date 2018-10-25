@@ -39,6 +39,8 @@ class StickyOrder extends BaseOrder {
   }
 
   create(side, rawAmount, params = {}) {
+    this.setTakerLimit = params.setTakerLimit;
+
     if(this.completed || this.completing) {
       return false;
     }
@@ -88,7 +90,6 @@ class StickyOrder extends BaseOrder {
   }
 
   calculatePrice(ticker) {
-
     const r = this.roundPrice;
 
     if(this.initialLimit && !this.id) {
@@ -140,6 +141,14 @@ class StickyOrder extends BaseOrder {
     }
 
     const alreadyFilled = this.calculateFilled();
+  
+    if (this.setTakerLimit.charAt(this.setTakerLimit.length-1) == '%') {
+      if (this.setTakerLimit.slice(0,-1) > 0 && this.side === 'buy') this.price = this.roundPrice(Number(this.price) + Number(this.price*this.setTakerLimit.slice(0,-1)/100));
+      if (this.setTakerLimit.slice(0,-1) > 0 && this.side === 'sell') this.price = this.roundPrice(Number(this.price) - Number(this.price*this.setTakerLimit.slice(0,-1)/100));
+    } else {
+      if (this.setTakerLimit > 0 && this.side === 'buy') this.price = this.roundPrice(Number(this.price) + Number(this.setTakerLimit));
+      if (this.setTakerLimit > 0 && this.side === 'sell') this.price = this.roundPrice(Number(this.price) - Number(this.setTakerLimit));  
+    }
 
     this.submit({
       side: this.side,

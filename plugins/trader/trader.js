@@ -144,6 +144,9 @@ Trader.prototype.processCandle = function(candle, done) {
 
 Trader.prototype.processAdvice = function(advice) {
   let direction;
+  let setTakerLimit = advice.setTakerLimit !== undefined ? advice.setTakerLimit : 0;
+  let setBuyAmount = advice.setBuyAmount !== undefined ? advice.setBuyAmount : 100;
+  let setSellAmount = advice.setSellAmount !== undefined ? advice.setSellAmount : 100;
 
   if(advice.recommendation === 'long') {
     direction = 'buy';
@@ -173,8 +176,8 @@ Trader.prototype.processAdvice = function(advice) {
   let amount;
 
   if(direction === 'buy') {
-
-    if(this.exposed) {
+    
+    if(this.exposure > 0.99) {
       log.info('NOT buying, already exposed');
       return this.deferredEmit('tradeAborted', {
         id,
@@ -186,7 +189,11 @@ Trader.prototype.processAdvice = function(advice) {
       });
     }
 
-    amount = this.portfolio.currency / this.price;// * 0.95;
+    if (setBuyAmount.charAt(setBuyAmount.length-1) == '%') {
+      amount = (this.portfolio.currency / this.price) * (setBuyAmount.slice(0,-1) / 100); // * 0.95;
+    } else {
+      amount = setBuyAmount / this.price;
+    }
 
     log.info(
       'Trader',
@@ -196,7 +203,7 @@ Trader.prototype.processAdvice = function(advice) {
 
   } else if(direction === 'sell') {
 
-    if(!this.exposed) {
+    if(this.exposure < 0.01) {
       log.info('NOT selling, no exposure');
       return this.deferredEmit('tradeAborted', {
         id,
@@ -220,7 +227,11 @@ Trader.prototype.processAdvice = function(advice) {
       delete this.activeStopTrigger;
     }
 
-    amount = this.portfolio.asset;
+    if (setSellAmount.charAt(setSellAmount.length-1) == '%') {
+      amount = this.portfolio.asset * (setSellAmount.slice(0,-1) / 100);
+    } else {
+      amount = setSellAmount;
+    }
 
     log.info(
       'Trader',
@@ -228,13 +239,12 @@ Trader.prototype.processAdvice = function(advice) {
       'Selling ', this.brokerConfig.asset
     );
   }
-
-  this.createOrder(direction, amount, advice, id);
+  this.createOrder(direction, amount, advice, id, { setTakerLimit, setBuyAmount, setSellAmount });
 }
 
-Trader.prototype.createOrder = function(side, amount, advice, id) {
+Trader.prototype.createOrder = function(side, amount, advice, id, params) {
   const type = 'sticky';
-
+  
   // NOTE: this is the best check we can do at this point
   // with the best price we have. The order won't be actually
   // created with this.price, but it should be close enough to
@@ -262,9 +272,12 @@ Trader.prototype.createOrder = function(side, amount, advice, id) {
     action: side,
     portfolio: this.portfolio,
     balance: this.balance,
-    date: advice.date
+    date: advice.date,
+    setTakerLimit: params.setTakerLimit,
+    setBuyAmount: params.setBuyAmount,
+    setSellAmount: params.setSellAmount
   });
-  this.order = this.broker.createOrder(type, side, amount);
+  this.order = this.broker.createOrder(type, side, amount, params);
 
   this.order.on('fill', f => log.info('[ORDER] partial', side, 'fill, total filled:', f));
   this.order.on('statusChange', s => log.debug('[ORDER] statusChange:', s));

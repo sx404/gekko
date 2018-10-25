@@ -146,7 +146,7 @@ class Broker {
     const order = new orders[type]({
       api: this.api,
       marketConfig: this.marketConfig,
-      capabilities: this.capabilities
+      capabilities: this.capabilities,
     });
 
     // todo: figure out a smarter generic way
