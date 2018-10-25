@@ -209,6 +209,7 @@ class StickyOrder extends BaseOrder {
     }
 
     if(this.handleError(err)) {
+      console.log(new Date, 'handleCreate error');
       return;
     }
 
@@ -272,6 +273,7 @@ class StickyOrder extends BaseOrder {
 
     this.api.checkOrder(this.id, (err, result) => {
       if(this.handleError(err)) {
+        console.log(new Date, 'checkOrder error');
         return;
       }
 
@@ -308,9 +310,12 @@ class StickyOrder extends BaseOrder {
         return;
       }
 
+      // it's not open right now
+      // meaning we are done
+      this.sticking = false;
+
       if(!result.executed) {
         // not open and not executed means it never hit the book
-        this.sticking = false;
         this.status = states.REJECTED;
         this.emitStatus();
         this.finish();
@@ -319,10 +324,8 @@ class StickyOrder extends BaseOrder {
 
       // order got filled!
       this.orders[this.id].filled = this.amount;
-      this.sticking = false;
       this.emit('fill', this.amount);
       this.filled(this.price);
-
     });
   }
 
@@ -384,6 +387,7 @@ class StickyOrder extends BaseOrder {
 
     this.api.cancelOrder(this.id, (err, filled, data) => {
       if(this.handleError(err)) {
+        console.log(new Date, 'error move');
         return;
       }
 
@@ -434,7 +438,7 @@ class StickyOrder extends BaseOrder {
     ) {
       this.moveLimitTo = limit;
       this.movingLimit = true;
-      return;
+      return true;
     }
 
     this.limit = this.roundPrice(limit);
@@ -536,6 +540,7 @@ class StickyOrder extends BaseOrder {
 
     this.api.cancelOrder(this.id, (err, filled, data) => {
       if(this.handleError(err)) {
+        console.log(new Date, 'error cancel');
         return;
       }
 
@@ -574,6 +579,7 @@ class StickyOrder extends BaseOrder {
       // note this is a standalone function after the order is
       // completed, as such we do not use the handleError flow.
       if(err) {
+        console.log(new Date, 'error createSummary (checkOrder)')
         return next(err);
       }
 
