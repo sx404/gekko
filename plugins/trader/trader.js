@@ -153,7 +153,7 @@ Trader.prototype.processAdvice = function(advice) {
   } else if(advice.recommendation === 'short') {
     direction = 'sell';
   } else {
-    log.error('ignoring advice in unknown direction');
+    //log.error('ignoring advice in unknown direction');
     return;
   }
 

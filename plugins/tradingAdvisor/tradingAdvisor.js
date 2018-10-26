@@ -127,6 +127,10 @@ Actor.prototype.processTradeCompleted = function(trade) {
   this.strategy.processTrade(trade);
 }
 
+Actor.prototype.processAdvice = function(advice) {
+  this.strategy.onAdvice(advice);
+}
+
 // pass through shutdown handler
 Actor.prototype.finish = function(done) {
   this.strategy.finish(done);
@@ -134,6 +138,7 @@ Actor.prototype.finish = function(done) {
 
 // EMITTERS
 Actor.prototype.relayAdvice = function(advice) {
+  this.onAdvice(advice);
   advice.date = this.candle.start.clone().add(1, 'minute');
   this.deferredEmit('advice', advice);
 }
