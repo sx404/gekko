@@ -53,3 +53,4 @@ SECRET-api-keys.json
 exchange/nusadua
 db_backup
 strategies/testbear.js
+telegram-subscribers.json
