@@ -83,8 +83,8 @@ stratMM.onCandle = async function (candle, check=true) {
 // ***************************************************************************
 // * Catch trade event completed and store expose info
 stratMM.onTrade = function (trade) {
-   if (trade.action == 'buy' && trade.trigger.strategy == 'multimarket') this.exposedMM = true;
-   if (trade.action == 'sell' && trade.trigger.strategy == 'multimarket') this.exposedMM = false;
+   if (trade.action == 'buy' && trade.trigger != undefined && trade.trigger.strategy == 'multimarket') this.exposedMM = true;
+   if (trade.action == 'sell' && trade.trigger != undefined  && trade.trigger.strategy == 'multimarket') this.exposedMM = false;
 }
 
 
