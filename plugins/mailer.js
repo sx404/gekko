@@ -97,7 +97,7 @@ Mailer.prototype.processCandle = function(candle, done) {
 };
 
 Mailer.prototype.processAdvice = function(advice) {
-
+  if (advice.recommendation == undefined) return;
   if (advice.recommendation == "soft" && mailConfig.muteSoft) return;
 
   var text = [
