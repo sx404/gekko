@@ -189,6 +189,7 @@ Trader.prototype.processAdvice = function(advice) {
       });
     }
 
+    setBuyAmount = String(setBuyAmount);
     if (setBuyAmount.charAt(setBuyAmount.length-1) == '%') {
       amount = (this.portfolio.currency / this.price) * (setBuyAmount.slice(0,-1) / 100); // * 0.95;
     } else {
@@ -227,6 +228,7 @@ Trader.prototype.processAdvice = function(advice) {
       delete this.activeStopTrigger;
     }
 
+    setSellAmount = String(setSellAmount);
     if (setSellAmount.charAt(setSellAmount.length-1) == '%') {
       amount = this.portfolio.asset * (setSellAmount.slice(0,-1) / 100);
     } else {
