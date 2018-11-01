@@ -22,6 +22,7 @@
 const colors = require('colors/safe');
 
 console.log(`
+   ${colors.green('~Gr€€n~')}
     ______   ________  __    __  __    __   ______
    /      \\ /        |/  |  /  |/  |  /  | /      \\
   /$$$$$$  |€€€€€€€€/ $$ | /$$/ $$ | /$$/ /$$$$$$  |
