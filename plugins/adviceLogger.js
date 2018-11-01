@@ -19,7 +19,7 @@ Actor.prototype.processCandle = function(candle, done) {
 };
 
 Actor.prototype.processAdvice = function(advice) {
-  if (adviceLoggerConfig.muteSoft && advice.recommendation == 'soft') return;
+  if ((adviceLoggerConfig.muteSoft && advice.recommendation == 'soft') || advice.recommendation == undefined) return;
   console.log()
   log.info('We have new trading advice!');
   log.info('\t Position:', advice.recommendation);
