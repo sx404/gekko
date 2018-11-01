@@ -1,6 +1,6 @@
-# Gekko [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
+# Green Gekko [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
-Crypto Trading Bot, askmike/gekko v0.6.6 based
+Interactive Crypto Trading Bot, askmike/gekko v0.6.7 based
 
 | Gekko with Telegram bot | Gekko with Telegram in admin mode |
 | ------------------------ | --------------------------------- |
@@ -8,7 +8,12 @@ Crypto Trading Bot, askmike/gekko v0.6.6 based
 
 **See screenshots folder**
 
-- Core enhancements to write async trading strategies with new async tulip and talib indicator wrappers. The introduction of the asyc/await pattern allows developers to write multi-timeframe and multi-market strategies using talib/tulip indicators within any multi-timeframe. The core is able to wait for async operations to finish, like db reading or internet access, without running into race conditions.
+- Extended trading strategy possibilities:
+   - set the trading amount within the advice (e.g. 50% of my portfolio)
+   - set market making or market taking order options within the advice
+   - receive "onCandle" events inside the strategy, to get 1 minute candles and allow developers to build multi-timeframe strategies
+   - receive "onAdvice" events inside the strategy for plugin-to-plugin communication, e.g. notify the strategy with telegram initiated advices, or create containers with multiple strategies.
+- Core enhancements to write async trading strategies with new async tulip and talib indicator wrappers. The asyc/await gekko core pattern allows developers to write multi-timeframe and multi-market strategies with talib andtulip indicators. within any multi-timeframe candles. The core is able to wait for async strategies without running into race conditions.
 - Rewritten telegram bot
   - User mode
     - list trading pair, strategy and candle size
@@ -17,12 +22,16 @@ Crypto Trading Bot, askmike/gekko v0.6.6 based
     - subscribe/unsubscribe to trading advices
   - Admin mode
     - Password restricted access
-    - Manually buy and sell tokens with one click
+    - Manually buy and sell tokens
+       - with a sticky order
+       - with a market taking order
+       - set stop-loss and take-profit settings
+    - Dynamically view and change strategy settings
     - Show exchange portfolio value
 - Advanced Postgresql DB features (used as default db to prevent sqlite lockings)
   - Rewritten postgres plugin, using connection pooling and transaction safe candle writing (Postgres 9.5+ required)
 - New command line options:
-  - Evaluate plugin dependencies and automatically enable a plugin when it is mandatory inside a certain mode, e.g. enable the Paper Trader when in backtest mode. See new mandatoryOn property in plugins.js file.
+  - Checks plugin dependencies and automatically enable a plugin when it is mandatory inside a certain mode, e.g. enable the Paper Trader when in backtest mode. See new mandatoryOn property in plugins.js file.
   - New --set command line option to override config settings, e.g. --set debug=true to enable the debug mode output - no need to touch the config.js for a quick debug run
 - Additional exchanges (ccxt), supporting market watch, history import, backtesting and live trading
   - HitBtc exchange support
