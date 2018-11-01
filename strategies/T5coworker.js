@@ -38,12 +38,12 @@ stratCW.init = function () {
 stratCW.onCandle = function (candle) {
     if (this.t5coworker.slvalue > 0 && candle.close < this.t5coworker.slvalue) {
         this.t5coworker.slvalue = 0;
-        this.advice({ direction: 'short', infomsg: 'Stop-Loss condition was met, current price: ' + candle.close + '. The strategy T5coworker gave advice to go SHORT. Note: previous stop-loss setting is now deleted.' });
+        this.advice({ direction: 'short', infomsg: 'Manual stop-Loss condition was met, current price: ' + candle.close + '. The strategy T5coworker gave advice to go SHORT. Note: previous stop-loss setting is now deleted.' });
     }
 
     if (this.t5coworker.tpvalue > 0 && candle.close > this.t5coworker.tpvalue) {
         tthis.t5coworker.tpvalue = 0;
-        this.advice({ direction: 'short', infomsg: 'Take-Profit condition was met, current price: ' + candle.close + '. The strategy T5coworker gave advice to go LONG. Note: previous take-profit setting is now deleted.' });
+        this.advice({ direction: 'short', infomsg: 'Manual take-Profit condition was met, current price: ' + candle.close + '. The strategy T5coworker gave advice to go LONG. Note: previous take-profit setting is now deleted.' });
     }
 }
 
