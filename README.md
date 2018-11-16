@@ -9,11 +9,11 @@ Interactive Crypto Trading Bot, askmike/gekko v0.6.7 based
 **See screenshots folder**
 
 - Extended trading strategy possibilities:
-   - set the trading amount within the advice (e.g. 50% of my portfolio)
+   - set trading amount within the advice (e.g. 50% of my portfolio)
    - set market making or market taking order options within the advice
-   - receive "onCandle" events inside the strategy, to get 1 minute candles and allow developers to build multi-timeframe strategies
+   - receive "onCandle" events inside the strategy, to get 1 minute candles and allow developers to build multi-timeframe strategies.
    - receive "onAdvice" events inside the strategy for plugin-to-plugin communication, e.g. notify the strategy with telegram initiated advices, or create containers with multiple strategies.
-- Core enhancements to write async trading strategies with new async tulip and talib indicator wrappers. The asyc/await gekko core pattern allows developers to write multi-timeframe and multi-market strategies with talib andtulip indicators. within any multi-timeframe candles. The core is able to wait for async strategies without running into race conditions.
+- Core enhancements to write async trading strategies with new async tulip and talib indicators. The new asyc/await gekko core allows developers to write multi-timeframe and multi-market strategies with wrapped talib and tulip indicators. The core is able to wait for async strategies without running into race conditions.
 - Rewritten telegram bot
   - User mode
     - list trading pair, strategy and candle size
