@@ -138,7 +138,6 @@ Actor.prototype.finish = function(done) {
 
 // EMITTERS
 Actor.prototype.relayAdvice = function(advice) {
-  this.onAdvice(advice);
   advice.date = this.candle.start.clone().add(1, 'minute');
   this.deferredEmit('advice', advice);
 }
