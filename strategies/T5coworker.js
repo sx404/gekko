@@ -8,7 +8,8 @@
 // * gekko strategy will run side-by-side.
 // * You can adjust these settings from inside the telegram bot dynamically   
 // * whitout the need to restart gekko. This coworker strategy will monitor
-// * and execute these settings when the price matches the condition.
+// * and execute these settings when the price matches the "take profit"
+// * or "stop loss" condition.
 // ****************************************************************************
 
 
@@ -19,14 +20,23 @@ const dirs = util.dirs();
 const log = require('../core/log.js');
 const config = util.getConfig();
 
+var objcontext;
 var stratCW = {};
 
 
-stratCW.init = function () {
+stratCW.init = function (context) {
+    if(context === undefined) {
+        objcontext = this;
+    } else {
+        objcontext = context;
+    }
+
+    this.requiredHistory = objcontext.tradingAdvisor.historySize;
+    this.intCandleSize = objcontext.tradingAdvisor.candleSize;
+    this.candleCount = 0;
     this.name = 'T5 coworker strategy';
     
-    this.t5coworker = {
-        lastcandle: undefined,
+    objcontext.t5coworker = {
         slvalue: 0,
         tpvalue: 0
     };
@@ -35,15 +45,22 @@ stratCW.init = function () {
 
 // ***************************************************************************
 // * 1 Min. candle event
-stratCW.onCandle = function (candle) {
-    if (this.t5coworker.slvalue > 0 && candle.close < this.t5coworker.slvalue) {
-        this.t5coworker.slvalue = 0;
-        this.advice({ direction: 'short', infomsg: 'Manual stop-Loss condition was met, current price: ' + candle.close + '. The strategy T5coworker gave advice to go SHORT. Note: previous stop-loss setting is now deleted.' });
+stratCW.onCandle = async function (candle) {
+    this.candleCount++;
+    
+    if (this.candleCount < this.requiredHistory*this.intCandleSize) {
+        if (this.candleCount % (10*this.intCandleSize) == 0) log.debug('T5coworker warmup:', this.candleCount/60, '/', this.requiredHistory*this.intCandleSize/60, ' (', this.requiredHistory*this.intCandleSize/60/24, 'days )');
+        return;
+    }
+    
+    if (objcontext.t5coworker.slvalue > 0 && candle.close < objcontext.t5coworker.slvalue) {
+        objcontext.t5coworker.slvalue = 0;
+        objcontext.advice({ direction: 'short', setTakerLimit: config[config.tradingAdvisor.method].setTakerLimit, setSellAmount: config[config.tradingAdvisor.method].setSellAmount, origin: 'T5coworker', date: moment(), infomsg: 'Manual stop-Loss condition was met, current price: ' + candle.close + '. The strategy T5coworker gave advice to go SHORT. Note: previous stop-loss setting is now deleted.' });
     }
 
-    if (this.t5coworker.tpvalue > 0 && candle.close > this.t5coworker.tpvalue) {
-        tthis.t5coworker.tpvalue = 0;
-        this.advice({ direction: 'short', infomsg: 'Manual take-Profit condition was met, current price: ' + candle.close + '. The strategy T5coworker gave advice to go LONG. Note: previous take-profit setting is now deleted.' });
+    if (objcontext.t5coworker.tpvalue > 0 && candle.close > objcontext.t5coworker.tpvalue) {
+        objcontext.t5coworker.tpvalue = 0;
+        objcontext.advice({ direction: 'short', setTakerLimit: config[config.tradingAdvisor.method].setTakerLimit, setSellAmount: config[config.tradingAdvisor.method].setSellAmount, origin: 'T5coworker', date: moment(), infomsg: 'Manual take-Profit condition was met, current price: ' + candle.close + '. The strategy T5coworker gave advice to go LONG. Note: previous take-profit setting is now deleted.' });
     }
 }
 
@@ -52,8 +69,8 @@ stratCW.onCandle = function (candle) {
 // * receive our own or foreign advices, e.g. from telegram bot
 stratCW.onAdvice = function (advice) {
     if (advice.origin === 'telegrambot' && advice.setconfig !== undefined) {
-        if (advice.setconfig.slvalue !== undefined) this.t5coworker.slvalue = advice.setconfig.slvalue;
-        if (advice.setconfig.tpvalue !== undefined) this.t5coworker.tpvalue = advice.setconfig.tpvalue;
+        if (advice.setconfig.slvalue !== undefined) objcontext.t5coworker.slvalue = advice.setconfig.slvalue;
+        if (advice.setconfig.tpvalue !== undefined) objcontext.t5coworker.tpvalue = advice.setconfig.tpvalue;
     }
 }
 
