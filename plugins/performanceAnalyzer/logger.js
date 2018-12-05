@@ -112,15 +112,17 @@ if(mode === 'backtest') {
       `(PROFIT REPORT) simulated yearly profit:\t ${report.yearlyProfit}`,
       `${this.currency} (${report.relativeYearlyProfit}%)`
     );
-  
+
     log.info(`(PROFIT REPORT) sharpe ratio:\t\t\t ${report.sharpe}`);
     log.info(`(PROFIT REPORT) expected downside:\t\t ${report.downside}`);
 
     if (report.relativeProfit > 300) {
       log.info(`(PROFIT REPORT) ${colors.yellow('Ole, Ole, Ole, dicke (• )( •) Kartoffelsalat, Lambo time :-)')}`);
     }
-  }
   
+    log.info(`(PROFIT REPORT) ratio roundtrips:\t\t ${report.ratioRoundTrips}%`);
+  }
+
   Logger.prototype.handleRoundtrip = function(rt) {
     this.roundtrips.push(rt);
   }

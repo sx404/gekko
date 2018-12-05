@@ -68,11 +68,11 @@ Actor.prototype.setupStrategy = async function(cb) {
   this.strategy.startRunner();
 
   this.strategy
-    .on('advice', this.relayAdvice)
     .on(
       'stratWarmupCompleted',
       e => this.deferredEmit('stratWarmupCompleted', e)
     )
+    .on('advice', this.relayAdvice)
     .on(
       'stratUpdate',
       e => this.deferredEmit('stratUpdate', e)
