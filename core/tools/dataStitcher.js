@@ -64,7 +64,8 @@ Stitcher.prototype.prepareHistoricalData = function(done) {
   this.reader.mostRecentWindow(idealStartTime, endTime, function(localData) {
     // now we know what data is locally available, what
     // data would we need from the exchange?
-    
+    log.info('DB candle consistency: ' + localData.consistency);
+
     if(!localData) {
       log.info('\tNo usable local data available, trying to get as much as possible from the exchange..');
       var idealExchangeStartTime = idealStartTime.clone();
@@ -216,12 +217,12 @@ Stitcher.prototype.checkExchangeTrades = function(since, next) {
 }
 
 Stitcher.prototype.seedLocalData = function(from, to, next) {
-  this.reader.get(from, to, 'full', function(err, rows) {
+  this.reader.get(from, to, 'full', async function(err, rows) {
     rows = _.map(rows, row => {
       row.start = moment.unix(row.start);
       return row;
     });
-    this.batcher.write(rows);
+    await this.batcher.write(rows);
     this.batcher.flush();
     this.reader.close();
     next();
