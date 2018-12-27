@@ -25,7 +25,12 @@ var CandleBatcher = function(candleSize) {
 
 util.makeEventEmitter(CandleBatcher);
 
-CandleBatcher.prototype.write = function(candles) {
+CandleBatcher.prototype.emit1M = async function(candle) {
+  if (this.asynchandler1M !== undefined) await this.asynchandler1M(candle);
+}
+
+
+CandleBatcher.prototype.write = async function(candles) {
   if(!_.isArray(candles)) {
     throw new Error('candles is not an array');
   }
@@ -40,13 +45,21 @@ CandleBatcher.prototype.write = function(candles) {
   return this.emitted;
 }
 
-CandleBatcher.prototype.check = function() {
+CandleBatcher.prototype.check = async function() {
+  if (this.smallCandles.length > 0) {
+    await this.emit1M(this.smallCandles[this.smallCandles.length-1]);
+  }
+
   if(_.size(this.smallCandles) % this.candleSize !== 0)
     return;
 
   this.emitted++;
   this.calculatedCandles.push(this.calculate());
   this.smallCandles = [];
+}
+
+CandleBatcher.prototype.reg1MAsyncHandler = function(handler) {
+  this.asynchandler1M = handler;
 }
 
 CandleBatcher.prototype.regAsyncHandler = function(handler) {
