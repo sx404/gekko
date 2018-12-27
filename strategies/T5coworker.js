@@ -47,11 +47,13 @@ stratCW.init = function (context) {
 // * 1 Min. candle event
 stratCW.onCandle = async function (candle) {
     this.candleCount++;
-    
+
     if (this.candleCount < this.requiredHistory*this.intCandleSize) {
-        if (this.candleCount % (10*this.intCandleSize) == 0) log.debug('T5coworker warmup:', this.candleCount/60, '/', this.requiredHistory*this.intCandleSize/60, ' (', this.requiredHistory*this.intCandleSize/60/24, 'days )');
+        if (this.candleCount/10 % this.intCandleSize == 0) log.debug('T5coworker strategy warmup with history data:', this.candleCount/60, '/', this.requiredHistory*this.intCandleSize/60, ' (', this.requiredHistory*this.intCandleSize/60/24, 'days )');
         return;
     }
+
+    //console.log('!!!!! T5coworker, OK, candle after warmup', this.candleCount, candle.close);
     
     if (objcontext.t5coworker.slvalue > 0 && candle.close < objcontext.t5coworker.slvalue) {
         objcontext.t5coworker.slvalue = 0;
@@ -76,7 +78,7 @@ stratCW.onAdvice = function (advice) {
 
 
 stratCW.update = function (candle) {
-    //no need for strat update, we work with onCandle custom batching
+    //no need for strat update, we work with onCandle custom batching 
 }
 
 
