@@ -83,7 +83,11 @@ Actor.prototype.setupStrategy = async function(cb) {
   this.strategy
     .on('tradeCompleted', this.processTradeCompleted);
 
+  batcher.reg1MAsyncHandler(this.processAll1MCandles);
   batcher
+    .on('1Mcandle', async (candle) => {
+      await this.processAll1MCandles(candle);
+    })
     .on('candle', _candle => {
       const { id, ...candle } = _candle;
       this.deferredEmit('stratCandle', candle);
@@ -97,16 +101,8 @@ Actor.prototype.setupStrategy = async function(cb) {
 // process the 1m candles
 Actor.prototype.processCandle = async function(candle, done) {
   this.candle = candle;  
+  const completedBatch = await batcher.write([candle]);
 
-  //strategy developers can implement their ONCANDLE function with or without async
-  if (WrappedStrategy.prototype['onCandle'] instanceof AsyncFunction) {
-    await this.strategy.onCandle(candle);
-  }
-  else {
-     this.strategy.onCandle(candle);
-  }
-
-  const completedBatch = batcher.write([candle]);
   if(completedBatch) {
     this.next = done;
   } else {
@@ -114,7 +110,17 @@ Actor.prototype.processCandle = async function(candle, done) {
     this.next = false;
   }
   batcher.flush();
-   
+}
+
+// 1m candles with full warmup history
+Actor.prototype.processAll1MCandles = async function(candle) {
+  //strategy developers can implement their ONCANDLE function with or without async
+  if (WrappedStrategy.prototype['onCandle'] instanceof AsyncFunction) {
+    await this.strategy.onCandle(candle);
+  }
+  else {
+     this.strategy.onCandle(candle);
+  }
 }
 
 // propogate a custom sized candle to the trading strategy
