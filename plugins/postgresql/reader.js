@@ -88,7 +88,7 @@ Reader.prototype.mostRecentWindow = function(from, to, next) {
         return next({
           from: leastRecent,
           to: mostRecent,
-          consistency: 'No db data gap, but missing history (only available from' + moment.unix(leastRecent).utc().format() + ' to ' + moment.unix(mostRecent).utc().format() + ')'
+          consistency: 'No db data gap, but missing history (available from ' + moment.unix(leastRecent).utc().format() + ' to ' + moment.unix(mostRecent).utc().format() + ')'
         });
       }
 
