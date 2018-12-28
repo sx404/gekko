@@ -145,8 +145,8 @@ Trader.prototype.processCandle = function(candle, done) {
 Trader.prototype.processAdvice = function(advice) {
   let direction;
   let setTakerLimit = advice.setTakerLimit !== undefined ? advice.setTakerLimit : 0;
-  let setBuyAmount = advice.setBuyAmount !== undefined ? advice.setBuyAmount : 100;
-  let setSellAmount = advice.setSellAmount !== undefined ? advice.setSellAmount : 100;
+  let setBuyAmount = advice.setBuyAmount !== undefined ? advice.setBuyAmount : '100%';
+  let setSellAmount = advice.setSellAmount !== undefined ? advice.setSellAmount : '100%';
 
   if(advice.recommendation === 'long') {
     direction = 'buy';
