@@ -97,7 +97,6 @@ Base.prototype.startRunner = function() {
 
 Base.prototype.tick = function(candle, done) {
   this.age++;
-
   const afterAsync = () => {
     this.calculateSyncIndicators(candle, done);
   }
@@ -270,8 +269,11 @@ Base.prototype.advice = function(newDirection) {
     }
 
     if(newDirection.direction === this._currentDirection) {
-      log.debug('Got advice to go', newDirection.direction, 'again - skip this double advice!');
-      return;
+      if (newDirection.setSellAmount == undefined && newDirection.setBuyAmount == undefined) { 
+        //allow double advice on partial buy/sells
+        log.debug('Got advice to go', newDirection.direction, 'again - skip this double advice!');
+        return;
+      }
     }
 
     if(_.isObject(newDirection.trigger)) {
@@ -291,25 +293,22 @@ Base.prototype.advice = function(newDirection) {
         }
       }
     }
-
-    newDirection = newDirection.direction;
+    newDir = newDirection.direction;
+  } else {
+    newDir = newDirection;
   }
 
-  if(newDirection === this._currentDirection) {
-    return;
-  }
-
-  if(newDirection === 'short' && this._pendingTriggerAdvice) {
+  if(newDir === 'short' && this._pendingTriggerAdvice) {
     this._pendingTriggerAdvice = null;
   }
 
-  this._currentDirection = newDirection;
+  this._currentDirection = newDir;
 
   this.propogatedAdvices++;
 
   const advice = {
     id: 'advice-' + this.propogatedAdvices,
-    recommendation: newDirection
+    recommendation: newDir
   };
 
   if(trigger) {
@@ -318,6 +317,12 @@ Base.prototype.advice = function(newDirection) {
   } else {
     this._pendingTriggerAdvice = null;
   }
+
+  if (newDirection.setTakerLimit !== undefined) advice.setTakerLimit = newDirection.setTakerLimit;
+  if (newDirection.setSellAmount !== undefined) advice.setSellAmount = newDirection.setSellAmount;
+  if (newDirection.setBuyAmount !== undefined) advice.setBuyAmount = newDirection.setBuyAmount;
+  if (newDirection.origin !== undefined) advice.origin = newDirection.origin;
+  if (newDirection.infomsg !== undefined) advice.infomsg = newDirection.infomsg;
 
   this.emit('advice', advice);
 
