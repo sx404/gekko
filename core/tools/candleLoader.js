@@ -72,6 +72,23 @@ const shiftIterator = () => {
   }
 }
 
+const batchHistoryData = function(rows, i, next) {
+  setTimeout(function timer(){
+    let arr = [];
+    arr[0] = rows[i];
+    context.batcher.write(arr);
+    context.batcher.flush();
+
+    if (i+1 == rows.length) {
+      log.debug('Strategy warmup with history data is complete');
+      setTimeout(next, 100);
+    }
+    else {
+      context.batchHistoryData(rows, ++i, next);
+    }
+  }, 5);
+}
+
 const handleCandles = (err, data) => {
   if(err) {
     console.error(err);
@@ -81,13 +98,14 @@ const handleCandles = (err, data) => {
   if(_.size(data) && _.last(data).start >= toUnix || iterator.from.unix() >= toUnix)
     DONE = true;
 
-  batcher.write(data);
-  batcher.flush();
+  //batcher.write(data);
+  //batcher.flush();
+  batchHistoryData(data, 0, doneFn);
 
   if(DONE) {
     reader.close();
 
-    setTimeout(doneFn, 100);
+    //setTimeout(doneFn, 100);
 
   } else {
     shiftIterator();
