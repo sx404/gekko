@@ -67,6 +67,22 @@ Market.prototype.get = function() {
   )
 }
 
+var context;
+Market.prototype.batchHistoryData = function(rows, i) {
+  setTimeout(function timer(){
+    let c;
+    c = rows[i];
+    context.push(c);
+
+    if (i+1 == rows.length) {
+      //log.debug('Strategy warmup with history data is complete');
+    }
+    else {
+      context.batchHistoryData(rows, ++i);
+    }
+  }, 5);
+}
+
 Market.prototype.processCandles = function(err, candles) {
   var amount = _.size(candles);
   
@@ -82,10 +98,12 @@ Market.prototype.processCandles = function(err, candles) {
   // if `this.latestTs` was at 10:00 and we receive 3 candles with the latest at 11:00
   // we know we are missing 57 candles...
 
+  context = this;
   _.each(candles, function(c, i) {
     c.start = moment.unix(c.start).utc();
-    this.push(c);
+  //  this.push(c);
   }, this);
+  this.batchHistoryData(candles, 0);
 
   this.latestTs = _.last(candles).start.unix() + 1;
 }
