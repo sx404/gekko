@@ -20,13 +20,24 @@ const adapter = config[config.adapter];
 const Reader = require('../' + adapter.path + '/reader.js');
 const TALIBASYNC = require('../strategies/indicators/TalibAsync.js');
 
+var objcontext;
 var stratMM = {};
 
 
 // ***************************************************************************
 // * Init a pice percent oszillator for bitcoin and altcoin market
-stratMM.init = function () {
+stratMM.init = function (context) {
+    //prepare this strategy to run inside a container of multiple strategies
+    if(context === undefined) {
+        objcontext = this;
+    } else {
+        objcontext = context;
+    }
+
     this.name = 'T5 multi market analyzer (BTC)';
+    this.requiredHistory = objcontext.tradingAdvisor.historySize;
+    this.intCandleSize = objcontext.tradingAdvisor.candleSize;
+    this.candleCount = 0;
 
     this.reader = new Reader('binance');
 
@@ -38,6 +49,12 @@ stratMM.init = function () {
 // ***************************************************************************
 // * 1 Min. altcoin candle event
 stratMM.onCandle = async function (candle, check=true) {
+    this.candleCount++;
+    if (this.candleCount < this.requiredHistory*this.intCandleSize) {
+        if (this.candleCount/10 % this.intCandleSize == 0) log.debug('T5multimarket strategy warmup with history data:', this.candleCount/60, '/', this.requiredHistory*this.intCandleSize/60, ' (', this.requiredHistory*this.intCandleSize/60/24, 'days )');
+        return;
+    }
+
     //read candle for second market (btc)
     var future = candle.start.add(1, 'second').unix();
     var start = candle.start.subtract(1, 'second').unix();
@@ -57,12 +74,17 @@ stratMM.onCandle = async function (candle, check=true) {
         this.ppoBtc.result = await this.ppoBtc.update(btcCandles[0]);
         this.ppoAlt.result = await this.ppoAlt.update(candle);
         
-        if (this.ppoBtc.result >= 0.4 && this.ppoAlt.result < this.ppoBtc.result && !this.exposedMM && check) {
+        if (this.ppoBtc.result >= 0.4 && this.ppoAlt.result < this.ppoBtc.result && !objcontext.exposedMM && check) {
             //log.debug('\n\n', 'ETH:', candle.close, candle.start.format() ,this.ppoAlt.result,' ::: BTC:', btcCandles[0].close, btcCandles[0].start.format(), this.ppoBtc.result);
             log.debug('BUY with multimarket strategy...');
-            this.exposedMM = true;
-            this.advice({
+            objcontext.exposedMM = true;
+            objcontext.advice({
                 direction: 'long',
+                //market taking order with limit for quick execution
+                setTakerLimit: config[config.tradingAdvisor.method].setTakerLimit, 
+                origin: 'T5multimarket',
+                date: moment(), 
+                infomsg: 'Bitcoin pump detected, current BTC price: ' + btcCandles[0].close + '. The strategy T5multimarket gave advice to go LONG to catch possible altcoin increases.',
                 trigger: {
                     type: 'trailingStop',
                     strategy: 'multimarket',
@@ -72,9 +94,9 @@ stratMM.onCandle = async function (candle, check=true) {
         }
         
         if (this.ppoBtc.result < -0.3) {  
-            this.btcFlashcrash = true;
+            objcontext.btcFlashcrash = true;
         } else {
-            this.btcFlashcrash = false;
+            objcontext.btcFlashcrash = false;
         }
     }, 'candles_usdt_btc');
 }
@@ -83,8 +105,8 @@ stratMM.onCandle = async function (candle, check=true) {
 // ***************************************************************************
 // * Catch trade event completed and store expose info
 stratMM.onTrade = function (trade) {
-   if (trade.action == 'buy' && trade.trigger != undefined && trade.trigger.strategy == 'multimarket') this.exposedMM = true;
-   if (trade.action == 'sell' && trade.trigger != undefined  && trade.trigger.strategy == 'multimarket') this.exposedMM = false;
+   if (trade.action == 'buy' && trade.trigger != undefined && trade.trigger.strategy == 'multimarket') objcontext.exposedMM = true;
+   if (trade.action == 'sell' && trade.trigger != undefined  && trade.trigger.strategy == 'multimarket') objcontext.exposedMM = false;
 }
 
 
