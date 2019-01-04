@@ -47,6 +47,7 @@ volumes
 config.js
 config-*.js
 Think5*.*
+private
 private-*.js
 private-*.toml
 SECRET-api-keys.json
