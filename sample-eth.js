@@ -40,6 +40,9 @@ config.tradingAdvisor = {
 
 
 config.T5mainasync = {
+  setTakerLimit: '1%',
+  setSellAmount: '100%',
+  setBuyAmount: '99%',
   MACD: {
     optInFastPeriod: 12,
     optInSlowPeriod: 26,
@@ -356,7 +359,7 @@ config.backtest = {
 //  daterange: 'scan',
  daterange: {
    from: "2018-01-01T00:00:00+02:00",
-   to: "2018-10-01T00:00:00+02:00"
+   to: "2018-12-31T00:00:00+02:00"
 },
   batchSize: 1
 }

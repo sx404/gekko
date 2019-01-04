@@ -14,7 +14,7 @@
 
 
 const _ = require('lodash');
-const moment = require('moment')
+const moment = require('moment');
 const util = require ('../core/util.js');
 const dirs = util.dirs();
 const log = require('../core/log.js');
