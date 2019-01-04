@@ -1,19 +1,20 @@
 # Green Gekko [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
-Interactive Crypto Trading Bot, askmike/gekko v0.6.7 based
+An Interactive Crypto Trading Bot, askmike/gekko v0.6.8 backwards compatible
 
-| Gekko with Telegram bot | Gekko with Telegram in admin mode |
+| Operate with a Telegram bot | Gekko with Telegram in admin mode |
 | ------------------------ | --------------------------------- |
 | ![Gekko with telegram bot](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-crypto-overview.jpg) | ![Gekko with telegram in admin mode](https://github.com/mark-sch/gekko/raw/develop/screenshots/telegrambot-admin-sell.jpg) |
 
 **See screenshots folder**
 
-- Extended trading strategy possibilities:
-   - set trading amount within the advice (e.g. 50% of my portfolio)
-   - set market making or market taking order options within the advice
-   - receive "onCandle" events inside the strategy, to get 1 minute candles and allow developers to build multi-timeframe strategies.
-   - receive "onAdvice" events inside the strategy for plugin-to-plugin communication, e.g. notify the strategy with telegram initiated advices, or create containers with multiple strategies.
-- Core enhancements to write async trading strategies with new async tulip and talib indicators. The new asyc/await gekko core allows developers to write multi-timeframe and multi-market strategies with wrapped talib and tulip indicators. The core is able to wait for async strategies without running into race conditions.
+- Extended trading-strategy possibilities:
+   - Heikin-Ashi candles core support, e.g. use candle.ha.close instead of candle.close inside your strategy
+   - set trading amount while giving advice (e.g. buy with 50% of my portfolio)
+   - allow market making or market taking order execution options
+   - receive "onCandle" events to allow developers building multi-timeframe strategies.
+   - receive "onAdvice" events for plugin-to-plugin communication, e.g. notify the strategy with telegram initiated advices, or create containers with multiple strategies.
+- Core enhancements to write async trading strategies with new async tulip and talib wrappers. The new Green Gekko core is able to wait for async strategies without running into race conditions and allows developers to write multi-timeframe and multi-market strategies.
 - Rewritten telegram bot
   - User mode
     - list trading pair, strategy and candle size
