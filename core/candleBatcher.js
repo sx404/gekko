@@ -29,6 +29,29 @@ CandleBatcher.prototype.emit1M = async function(candle) {
   if (this.asynchandler1M !== undefined) await this.asynchandler1M(candle);
 }
 
+CandleBatcher.prototype.addHeikinAshi = function(currcandle, prevcandle) {
+  var f = function(x) {
+    return parseFloat(x).toFixed(2);
+  }
+  var candle = currcandle;
+  if (prevcandle.ha == undefined) {
+    // happens on very first candle only
+    prevcandle.ha = {
+      open: (prevcandle.open + prevcandle.close) / 2,
+      close: (prevcandle.open + prevcandle.high + prevcandle.low + prevcandle.close) / 4,
+      high: prevcandle.high,
+      low: prevcandle.low
+    }
+  }
+
+  candle.ha = {};
+  candle.ha.open = (prevcandle.ha.open + prevcandle.ha.close) / 2;
+  candle.ha.close = (candle.open + candle.high + candle.low + candle.close) / 4;
+  candle.ha.high = _.max([candle.high, candle.ha.open, candle.ha.close]);
+  candle.ha.low = _.min([candle.low, candle.ha.open, candle.ha.close]);
+
+  return candle;
+}
 
 CandleBatcher.prototype.write = async function(candles) {
   if(!_.isArray(candles)) {
@@ -38,6 +61,10 @@ CandleBatcher.prototype.write = async function(candles) {
   this.emitted = 0;
 
   _.each(candles, function(candle) {
+    if (this.prevcandle == undefined) this.prevcandle = _.clone(candle);
+    candle = this.addHeikinAshi(candle, this.prevcandle);
+    this.prevcandle = _.clone(candle);
+
     this.smallCandles.push(candle);
     this.check();
   }, this);
@@ -89,9 +116,13 @@ CandleBatcher.prototype.calculate = function() {
   var candle = _.reduce(
     this.smallCandles,
     function(candle, m) {
+      //console.log('!!!!!', candle, m);
       candle.high = _.max([candle.high, m.high]);
+      candle.ha.high = _.max([candle.ha.high, m.ha.high]);
       candle.low = _.min([candle.low, m.low]);
+      candle.ha.low = _.min([candle.ha.low, m.ha.low]);
       candle.close = m.close;
+      candle.ha.close = m.ha.close;
       candle.volume += m.volume;
       candle.vwp += m.vwp * m.volume;
       candle.trades += m.trades;
