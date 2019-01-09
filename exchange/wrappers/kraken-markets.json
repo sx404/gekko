@@ -2,6 +2,7 @@
   "assets": [
     "ADA",
     "BCH",
+    "BSV",
     "DASH",
     "EOS",
     "GNO",
@@ -9,7 +10,6 @@
     "USDT",
     "ETC",
     "ETH",
-    "ICN",
     "LTC",
     "MLN",
     "REP",
@@ -162,6 +162,57 @@
       "book": "BCHXBT",
       "minimalOrder": {
         "amount": "0.002",
+        "unit": "asset"
+      },
+      "pricePrecision": 5,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "EUR",
+        "BSV"
+      ],
+      "prefixed": [
+        "ZEUR",
+        "BSV"
+      ],
+      "book": "BSVEUR",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 1,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "USD",
+        "BSV"
+      ],
+      "prefixed": [
+        "ZUSD",
+        "BSV"
+      ],
+      "book": "BSVUSD",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 1,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "XBT",
+        "BSV"
+      ],
+      "prefixed": [
+        "XXBT",
+        "BSV"
+      ],
+      "book": "BSVXBT",
+      "minimalOrder": {
+        "amount": 0.01,
         "unit": "asset"
       },
       "pricePrecision": 5,
@@ -624,40 +675,6 @@
         "unit": "asset"
       },
       "pricePrecision": 2,
-      "amountPrecision": 8
-    },
-    {
-      "pair": [
-        "ETH",
-        "ICN"
-      ],
-      "prefixed": [
-        "XETH",
-        "XICN"
-      ],
-      "book": "XICNXETH",
-      "minimalOrder": {
-        "amount": "2",
-        "unit": "asset"
-      },
-      "pricePrecision": 6,
-      "amountPrecision": 8
-    },
-    {
-      "pair": [
-        "XBT",
-        "ICN"
-      ],
-      "prefixed": [
-        "XXBT",
-        "XICN"
-      ],
-      "book": "XICNXXBT",
-      "minimalOrder": {
-        "amount": "2",
-        "unit": "asset"
-      },
-      "pricePrecision": 6,
       "amountPrecision": 8
     },
     {
