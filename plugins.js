@@ -27,15 +27,6 @@
 //    properly when some events wont be emitted.
 var plugins = [
   {
-    name: 'Candle writer',
-    description: 'Store candles in a database',
-    slug: 'candleWriter',
-    async: true,
-    modes: ['realtime', 'importer'],
-    path: config => config.adapter + '/writer',
-    version: 0.1,
-  },
-  {
     name: 'IRC bot',
     description: 'IRC module lets you communicate with Gekko on IRC.',
     slug: 'ircbot',
@@ -231,6 +222,28 @@ var plugins = [
     modes: ['realtime', 'importer'],
     path: config => config.adapter + '/writer',
     version: 0.1,
+  },
+  {
+    name: 'Candle Uploader',
+    description: 'Upload realtime market candles to an external server',
+    slug: 'candleUploader',
+    async: true,
+    modes: ['realtime'],
+    dependencies: [{
+      module: 'axios',
+      version: '0.18.0'
+    }]
+  },
+  {
+    name: 'Zignaly Broadcaster',
+    description: 'Push realtime trading advices to the zignaly.com platform',
+    slug: 'zignalyBroadcaster',
+    async: false,
+    modes: ['realtime'],
+    dependencies: [{
+      module: 'axios',
+      version: '0.18.0'
+    }]
   },
   {
     name: 'Trading Advisor',
