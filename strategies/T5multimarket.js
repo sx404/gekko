@@ -64,8 +64,16 @@ stratMM.onCandle = async function (candle, check=true) {
         var amount = _.size(btcCandles);
         
         if(amount === 0) {
-            log.debug('no BTC candles');
-            resolve();
+            log.debug('no BTC candle (' + candle.start.format() + ')');
+            return;
+        }
+        else {
+            log.debug('Processing T5multimarket candle, BTC:', btcCandles[0].close, config.watch.asset+':', candle.close);
+        }
+
+        this.candleCount++;
+        if (this.candleCount < this.requiredHistory*this.intCandleSize) {
+            if (this.candleCount/10 % this.intCandleSize == 0) log.debug('T5multimarket strategy warmup with history data:', this.candleCount/60, '/', this.requiredHistory*this.intCandleSize/60, ' (', this.requiredHistory*this.intCandleSize/60/24, 'days )');
             return;
         }
 

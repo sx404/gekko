@@ -12,6 +12,8 @@
 // * or "stop loss" condition.
 // ****************************************************************************
 
+//possible sell signal improvement:
+//https://www.tradingview.com/script/H48yeyRa-Adaptive-ATR-ADX-Trend-V2/
 
 const _ = require('lodash');
 const moment = require('moment');
