@@ -39,6 +39,7 @@ class StickyOrder extends BaseOrder {
   }
 
   create(side, rawAmount, params = {}) {
+    this.createRetry = 0;
     this.setTakerLimit = params.setTakerLimit;
 
     if(this.completed || this.completing) {
@@ -109,7 +110,7 @@ class StickyOrder extends BaseOrder {
       }
 
       if(!this.outbid) {
-        return r(ticker.bid);
+        return r(Number(ticker.bid));
       }
 
       const outbidPrice = this.outbidPrice(ticker.bid, true);
@@ -127,7 +128,7 @@ class StickyOrder extends BaseOrder {
       }
 
       if(!this.outbid) {
-        return r(ticker.ask);
+        return r(Number(ticker.ask));
       }
 
       const outbidPrice = this.outbidPrice(ticker.ask, false);
@@ -323,10 +324,17 @@ class StickyOrder extends BaseOrder {
 
       if(!result.executed) {
         // not open and not executed means it never hit the book
-        this.status = states.REJECTED;
-        this.emitStatus();
-        this.finish();
-        return;
+        this.createRetry++;
+        if (this.createRetry > 3) {
+          this.status = states.REJECTED;
+          this.emitStatus();
+          this.finish();
+          return;
+        } else {
+          console.log('Error while opening a new order, will retry in 1 min. Attempt:', this.createRetry);
+          setTimeout(this.createOrder, 60000);
+          return;
+        }
       }
 
       // order got filled!
