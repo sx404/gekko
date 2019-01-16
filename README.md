@@ -71,6 +71,8 @@ from time to time the exchange markets should be updated with a utility - to get
 
 (postgresql experience required to previously setup postgres. Sample config assumes an existing db user gekkodbuser, pass 1234, with added role permission to createdb. PostgreSQL 9.5+ required.)
 
+See further info how to get started and how to setup postgresql from [crypto49er at youtube](https://www.youtube.com/watch?v=vIqe-EPAMeU)
+
 > A good practice to run Gekko processes on a server is using process manager 2 tool:
 >
 > **pm2 start gekko.js -i 1 --name "gekko-bnb" -- --config config-bnb.js**
