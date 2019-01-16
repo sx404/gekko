@@ -79,7 +79,7 @@ util.makeEventEmitter(Actor);
 Actor.prototype.processCandle = function(candle, done) {
   this.price = candle.close;
   this.priceTime = candle.start;
-  if (this.lasttradeprice != undefined) {
+  if (this.lasttradeprice !== undefined && this.lasttradeprice !== 0) {
     let change = this.price / this.lasttradeprice;
 
     if (change > 1)
@@ -321,13 +321,20 @@ Actor.prototype.emitAdminMode = function(chatId) {
 
 
 Actor.prototype.emitAdminPortfolio = function(chatId) {
-  let message = [
-    'Your current balance values at <b>' + config.watch.exchange + '</b>:\n',
-    '<b>' + config.watch.currency + '</b>: ' + this.pcurrency + '\n',
-    '<b>' + config.watch.asset + '</b>: ' + this.passet + '\n',
-    this.pvalue != undefined ? '<b>Value</b>: ' + this.pvalue.toFixed(2) + ' ' + config.watch.currency + '\n' : '',
-    this.pperformance != undefined ? 'Change since last trade: <b>' + this.pperformance + '</b>\n' : '',
-  ].join('');
+  if (this.pcurrency === 'Dont know yet :(' || this.price === 'Dont know yet :(') {
+    var message = [
+      'The portfolio data is not available yet. Green Gekko is initializing, try again soon.'
+    ].join('');
+  } else {
+    var message = [
+      'Your current balance values at <b>' + config.watch.exchange + '</b>:\n',
+      '<b>' + config.watch.currency + '</b>: ' + this.pcurrency + '\n',
+      '<b>' + config.watch.asset + '</b>: ' + this.passet + '\n',
+      this.price != undefined ? '<b>Price</b>: ' + this.price.toFixed(2) + ' ' + config.watch.currency + '\n' : '',
+      this.pvalue != undefined ? '<b>Value</b>: ' + this.pvalue.toFixed(2) + ' ' + config.watch.currency + '\n' : '',
+      this.pperformance != undefined ? 'Change since last trade: <b>' + this.pperformance + '</b>\n' : ''
+    ].join('');
+  }
 
   message = message.substr(0, _.size(message) - 1) + '.';
   this.bot.sendMessage(chatId, message, this.adminkeyboard);
