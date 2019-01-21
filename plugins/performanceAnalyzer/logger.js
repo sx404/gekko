@@ -108,6 +108,7 @@ if(mode === 'backtest') {
 
     this.logReport(null, report);
 
+    log.info(`(PROFIT REPORT) alpha:\t\t\t\t ${report.alpha}%`);
     log.info(
       `(PROFIT REPORT) simulated yearly profit:\t ${report.yearlyProfit}`,
       `${this.currency} (${report.relativeYearlyProfit}%)`
