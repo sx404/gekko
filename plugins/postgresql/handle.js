@@ -44,7 +44,6 @@ var pool = new pg.Pool({
 // postgres database first. Your postgres
 // user will need appropriate rights.
 checkClient.connect((err, client, done) => {
-  console.log('!!!!!', adapter.version);
   if(err) {
     log.info('Unable to connect to PostgreSQL db. Exit.');
     util.die(err);

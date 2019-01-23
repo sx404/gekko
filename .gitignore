@@ -55,3 +55,4 @@ exchange/nusadua
 db_backup/*.gz
 strategies/testbear.js
 telegram-config-eth.js.json
+deploy.sh
