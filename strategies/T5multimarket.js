@@ -21,6 +21,7 @@ const Reader = require('../' + adapter.path + '/reader.js');
 const TALIBASYNC = require('../strategies/indicators/TalibAsync.js');
 
 var objcontext;
+var gekkoMode = util.gekkoMode();
 var stratMM = {};
 
 
@@ -67,7 +68,7 @@ stratMM.onCandle = async function (candle, check=true) {
             log.debug('no BTC candle (' + candle.start.format() + ')');
             return;
         }
-        else {
+        else if (gekkoMode === 'realtime') {
             log.debug('Processing T5multimarket candle, BTC:', btcCandles[0].close, config.watch.asset+':', candle.close);
         }
 
