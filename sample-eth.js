@@ -130,6 +130,12 @@ config.profitSimulator = {
   slippage: 0.5
 }
 
+config.candleUploader = {
+  enabled: false,
+  url: '',
+  apiKey: ''
+}
+
 config.pushover = {
   enabled: false,
   sendPushoverOnStart: false,
