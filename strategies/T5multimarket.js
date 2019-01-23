@@ -68,14 +68,15 @@ stratMM.onCandle = async function (candle, check=true) {
             log.debug('no BTC candle (' + candle.start.format() + ')');
             return;
         }
-        else if (gekkoMode === 'realtime') {
-            log.debug('Processing T5multimarket candle, BTC:', btcCandles[0].close, config.watch.asset+':', candle.close);
-        }
 
         this.candleCount++;
         if (this.candleCount < this.requiredHistory*this.intCandleSize) {
             if (this.candleCount/10 % this.intCandleSize == 0) log.debug('T5multimarket strategy warmup with history data:', this.candleCount/60, '/', this.requiredHistory*this.intCandleSize/60, ' (', this.requiredHistory*this.intCandleSize/60/24, 'days )');
             return;
+        }
+
+        if (gekkoMode === 'realtime') {
+            log.debug('Processing T5multimarket candle, BTC:', btcCandles[0].close, config.watch.asset+':', candle.close);
         }
 
         btcCandles[0].start = moment.unix(btcCandles[0].start); //convert from unix epoch to moment
