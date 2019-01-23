@@ -81,7 +81,9 @@ CandleBatcher.prototype.check = async function() {
     return;
 
   this.emitted++;
-  this.calculatedCandles.push(this.calculate());
+  try {
+    this.calculatedCandles.push(this.calculate());
+  } catch(err) {}
   this.smallCandles = [];
 }
 
