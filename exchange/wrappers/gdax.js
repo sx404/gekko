@@ -11,7 +11,7 @@ const QUERY_DELAY = 350;
 const marketData = require('./coinbase-markets.json');
 
 const Trader = function(config) {
-  this.post_only = true;
+  this.post_only = false;
   this.use_sandbox = false;
   this.name = 'GDAX';
   this.scanback = false;
