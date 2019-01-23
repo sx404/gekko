@@ -1,3 +1,12 @@
+// ****************************************************************************
+// *** T5mainasync.js                                                       ***
+// ****************************************************************************
+// * Purpose: strategy to showcase effective indicator 
+// * combinations using the tulib and talib libraries
+// * Requirements: Async/await gekko core extension
+// ****************************************************************************
+
+
 const _ = require('lodash');
 const util = require('util');
 const log = require('../core/log.js');
@@ -5,6 +14,7 @@ const config = require ('../core/util.js').getConfig();
 const candleBatcher = require('../core/candleBatcher');
 const TEMA = require('../strategies/indicators/TEMA.js');
 const TULIPASYNC = require('../strategies/indicators/TulipAsync.js');
+const TALIBASYNC = require('../strategies/indicators/TalibAsync.js');
 var obj;
 
 var stratMain = {};
@@ -50,6 +60,7 @@ stratMain.init = function (context) {
     this.emalong60M = new TULIPASYNC({ indicator: 'ema', length: 500, candleinput: 'close', options:[ EMAlongSettings.optInTimePeriod ] });
     this.rsi60M = new TULIPASYNC({ indicator: 'rsi', length: 500, candleinput: 'close', options:[ RSISettings.optInTimePeriod ] });
     this.stoch60M = new TULIPASYNC({ indicator: 'stoch', length: 500, candleinput: 'high,low,close', options:[ STOCHSettings.optInFastKPeriod, STOCHSettings.optInSlowKPeriod, STOCHSettings.optInSlowDPeriod ] });
+    this.mfi60M = new TALIBASYNC({ indicator: 'mfi', length: 5000, options: { optInTimePeriod: 14 } });
     this.tema60M = new TEMA({ weight: 440 });
     this.tema60M.count = 0;
 }
@@ -78,7 +89,7 @@ stratMain.onCandle60M = async function (candle) {
     //define necessary entry trend strength based on bollinger band width and ppo
     obj.tema60M.treshold = 100.065; 
     
-    if ((obj.tema60M.trend > obj.tema60M.treshold) || this.context.exposedMain) {
+    if ((obj.tema60M.trend > obj.tema60M.treshold) || obj.exposedMain) {
         obj.check60M(candle);
     }       
 }
@@ -92,6 +103,7 @@ stratMain.update60M = async function (candle) {
     this.emashort60M.result = (await this.emashort60M.update(candle))[0];
     this.emalong60M.result = (await this.emalong60M.update(candle))[0];
     this.rsi60M.result = (await this.rsi60M.update(candle))[0];
+    this.mfi60M.result = await this.mfi60M.update(candle);
     this.stoch60M.result = await this.stoch60M.update(candle);
        this.stoch60M.stochk = this.stoch60M.result[0];
        this.stoch60M.stochd = this.stoch60M.result[1];
@@ -114,6 +126,8 @@ stratMain.check60M = function(candle) {
         this.emalong60M.result,
         'rsi',
         this.rsi60M.result,
+        'mfi',
+        this.mfi60M.result,
         'stoch',
         this.stoch60M.stochk,
         this.stoch60M.stochd
