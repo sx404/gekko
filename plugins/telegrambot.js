@@ -331,7 +331,7 @@ Actor.prototype.emitAdminPortfolio = function(chatId) {
       '<b>' + config.watch.currency + '</b>: ' + this.pcurrency + '\n',
       '<b>' + config.watch.asset + '</b>: ' + this.passet + '\n',
       this.price != undefined ? '<b>Price</b>: ' + this.price.toFixed(2) + ' ' + config.watch.currency + '\n' : '',
-      this.pvalue != undefined ? '<b>Value</b>: ' + this.pvalue.toFixed(2) + ' ' + config.watch.currency + '\n' : '',
+      this.pvalue != undefined && this.pvalue != 'Dont know yet :(' ? '<b>Value</b>: ' + this.pvalue.toFixed(2) + ' ' + config.watch.currency + '\n' : '',
       this.pperformance != undefined ? 'Change since last trade: <b>' + this.pperformance + '</b>\n' : ''
     ].join('');
   }
