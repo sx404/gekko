@@ -49,8 +49,7 @@ An Interactive Crypto Trading Bot, askmike/gekko v0.6.8 backwards compatible
 
 - [T5mainasync strategy, ETHEUR, 20180101-20181001](https://git.io/fxgdH) / [settings](https://raw.githubusercontent.com/mark-sch/gekko/develop/sample-eth.js) / [source](https://raw.githubusercontent.com/mark-sch/gekko/develop/strategies/T5mainasync.js)
 - [T5multimarket_strategy, ETHEUR, 20180101-20181001](https://git.io/fxrSq) / [source](https://raw.githubusercontent.com/mark-sch/gekko/develop/strategies/T5multimarket.js)
-- [T5multitime strategy, ETHEUR, 20180101-20181001](https://git.io/fxrSa)
-- [T5multimix strategy, ETHEUR, 20180101-20181001](https://git.io/fxrSb)
+- [T5multimix strategy, ETHEUR, 20180101-20181231](https://git.io/fhMvD)
 
 ## Getting started
 
