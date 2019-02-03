@@ -12,8 +12,6 @@
 // * or "stop loss" condition.
 // ****************************************************************************
 
-//possible sell signal improvement:
-//https://www.tradingview.com/script/H48yeyRa-Adaptive-ATR-ADX-Trend-V2/
 
 const _ = require('lodash');
 const moment = require('moment');
@@ -71,11 +69,24 @@ stratCW.onCandle = async function (candle) {
 
 // ***************************************************************************
 // * receive our own or foreign advices, e.g. from telegram bot
+// * we use the advice event here to share infos between plugins
 stratCW.onAdvice = function (advice) {
     if (advice.origin === 'telegrambot' && advice.setconfig !== undefined) {
         if (advice.setconfig.slvalue !== undefined) objcontext.t5coworker.slvalue = advice.setconfig.slvalue;
         if (advice.setconfig.tpvalue !== undefined) objcontext.t5coworker.tpvalue = advice.setconfig.tpvalue;
     }
+}
+
+
+stratCW.onRemoteAdvice = function (radvice) {
+    //instead of writing our own trading strategy, we take the remote advice
+    //and send it to our gekko bot for trade execution
+    objcontext.advice(radvice.advice);
+}
+
+
+stratCW.onRemoteCandle = function (rcandle) {
+    //we could write our own stategy with 1M remotes candles here
 }
 
 

@@ -137,6 +137,14 @@ Actor.prototype.processAdvice = function(advice) {
   this.strategy.onAdvice(advice);
 }
 
+Actor.prototype.processRemoteAdvice = function(radvice) {
+  this.strategy.onRemoteAdvice(radvice);
+}
+
+Actor.prototype.processRemoteCandle = function(rcandle) {
+  this.strategy.onRemoteCandle(rcandle);
+}
+
 // pass through shutdown handler
 Actor.prototype.finish = function(done) {
   this.strategy.finish(done);

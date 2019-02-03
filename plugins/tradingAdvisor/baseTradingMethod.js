@@ -69,8 +69,14 @@ var Base = function(settings) {
   if(!this.onAdvice)
     this.onAdvice = function() {};
 
+    if(!this.onRemoteAdvice)
+    this.onRemoteAdvice = function() {};
+
   if(!this.onCandle)
     this.onCandle = function() {};
+
+  if(!this.onRemoteCandle)
+    this.onRemoteCandle = function() {};
 
   //if no requiredHistory was provided, set default from tradingAdvisor
   if (!_.isNumber(this.requiredHistory)){
@@ -94,6 +100,8 @@ Base.prototype.startRunner = function() {
     delete this.asyncIndicatorRunner;
 }
 
+// teach our base trading method events
+util.makeEventEmitter(Base);
 
 Base.prototype.tick = function(candle, done) {
   this.age++;
@@ -149,9 +157,7 @@ Base.prototype.propogateTick = async function(candle) {
   
   this.processedTicks++;
   var isAllowedToCheck = this.requiredHistory <= this.age;
-
   if(!this.completedWarmup) {
-
     // in live mode we might receive more candles
     // than minimally needed. In that case check
     // whether candle start time is > startTime
@@ -161,11 +167,9 @@ Base.prototype.propogateTick = async function(candle) {
       const startTimeMinusCandleSize = startTime
         .clone()
         .subtract(this.tradingAdvisor.candleSize, "minutes");
-
       isPremature = candle.start < startTimeMinusCandleSize;
     }
-
-    if(isAllowedToCheck && !isPremature) {
+    if(isAllowedToCheck /*&& !isPremature*/) {
       this.completedWarmup = true;
       this.emit(
         'stratWarmupCompleted',

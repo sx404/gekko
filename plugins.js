@@ -235,6 +235,19 @@ var plugins = [
     }]
   },
   {
+    name: 'Cloud Connector',
+    description: 'Receive remote strategy advices and candles from the Gekko Cloud',
+    slug: 'cloudConnector',
+    async: true,
+    modes: ['realtime'],
+    emits: true,
+    dependencies: [{
+      module: '@xmpp/client',
+      version: '0.6.2'
+    }],
+    path: config => 'cloudConnector/cloudConnector.js',
+  },
+  {
     name: 'Zignaly Broadcaster',
     description: 'Push realtime trading advices to the zignaly.com platform',
     slug: 'zignalyBroadcaster',
