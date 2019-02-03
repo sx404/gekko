@@ -34,6 +34,7 @@ config.watch = {
 config.tradingAdvisor = {
   enabled: true,
   method: 'T5mainasync',
+  fastAdviceEmit: true,
   candleSize: 60,
   historySize: 120
 }

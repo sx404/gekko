@@ -5,6 +5,7 @@
 // More details here: https://forum.gekko.wizb.it/thread-56579.html
 
 const util = require('util');
+const config = require('./util.js').getConfig();
 const events = require('events');
 const NativeEventEmitter = events.EventEmitter;
 
@@ -17,14 +18,19 @@ util.inherits(GekkoEventEmitter, NativeEventEmitter);
 
 // push to stack
 GekkoEventEmitter.prototype.deferredEmit = function(name, payload) {
-  this.defferedEvents.push({name, payload});
+  if (config.tradingAdvisor.fastAdviceEmit && (name === 'advice' || name === 'tradeInitiated' || name === 'tradeCompleted')) {
+    this.emit(name, payload);
+  }
+  else {
+    this.defferedEvents.push({name, payload});
+  }
 }
 
 // resolve FIFO
 GekkoEventEmitter.prototype.broadcastDeferredEmit = function() {
   if(this.defferedEvents.length === 0)
     return false;
-
+    
   const event = this.defferedEvents.shift();
 
   this.emit(event.name, event.payload);

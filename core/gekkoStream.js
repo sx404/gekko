@@ -34,7 +34,6 @@ if(config.debug && mode !== 'importer') {
     if(chunk.isFinished) {
       return this.finalize();
     }
-
     const start = moment();
     var relayed = false;
     var at = null;
@@ -46,7 +45,7 @@ if(config.debug && mode !== 'importer') {
           `This will cause Gekko to slow down or stop working completely.`
         ].join(' '));
     }, 1000);
-
+    
     const flushEvents = _.after(this.candleConsumers.length, () => {
       relayed = true;
       clearInterval(timer);
@@ -81,7 +80,7 @@ Gekko.prototype.flushDefferedEvents = function() {
     producer => producer.broadcastDeferredEmit()
   );
 
-  // If we braodcasted anything we might have
+  // If we broadcasted anything, we might have
   // triggered more events, recurse until we
   // have fully broadcasted everything.
   if(broadcasted)
