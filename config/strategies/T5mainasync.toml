@@ -1,6 +1,6 @@
-setTakerLimi = 0.01
-setSellAmount = 1
-setBuyAmount = 0.99
+setTakerLimit = '0.01%'
+setSellAmount = '100%'
+setBuyAmount = '0.99%'
 
 [MACD]
 optInFastPeriod = 12
