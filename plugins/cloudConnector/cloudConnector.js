@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const log = require('../../core/log.js');
 const Connection = require('./connection.js');
+var warmupCompleted = false;
 
 const Connector = function(done) {
     _.bindAll(this);
@@ -18,6 +19,11 @@ Connector.prototype.onRemoteCandle = function(remoteCandle) {
 
 
 Connector.prototype.onRemoteAdvice = function (remoteAdvice) {
+    if (!warmupCompleted) {
+        log.info('Candle warmup is not completed yet, skipping remote advice!');
+        return;
+    }
+
     remoteAdvice.advice.direction = remoteAdvice.advice.recommendation;
     this.emit('remoteAdvice', remoteAdvice);
 };
@@ -30,14 +36,21 @@ Connector.prototype.processCandle = function(candle, done) {
     done();
 };
 
+
 Connector.prototype.processAdvice = function(advice) {
     if (advice.recommendation === 'soft') return;
-    //if (advice.origin !== undefined && advice.origin === 'telegrambot') return;
+    if (advice.origin !== undefined && advice.origin === 'telegrambot') return;
     if (advice.recommendation === undefined) return;
 
     this.mycon.publishAdvice(advice);
 };
-  
+
+
+Connector.prototype.processStratWarmupCompleted = function(advice) {
+    warmupCompleted = true;
+}
+
+
 Connector.prototype.finish = async function(next) {
     await this.mycon.exit();
     next();

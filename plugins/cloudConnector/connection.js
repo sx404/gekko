@@ -4,6 +4,7 @@ const util = require('../../core/util.js');
 const moment = require('moment');
 const { client, xml, jid } = require('@xmpp/client');
 const config = util.getConfig();
+var lastRemoteCandle = { start: moment(0) };
 var onRemoteCandle;
 var onRemoteAdvice;
 
@@ -20,6 +21,7 @@ const xmpp = client({
 })
 
 const Conn = function() {
+  xmpp.reconnect.delay = 5000;
   xmpp
   .start()
   .catch(err => log.error('⚠ Connection failed: ' + err.message));
@@ -60,7 +62,7 @@ xmpp.on('stanza', async stanza => {
         xml('query', {xmlns: 'jabber:iq:auth'}, [ 
           xml('username', {}, this.myJID.split('@')[0]), 
           xml('password', {}, xmpp.options.gglogin.password),
-          xml('resource', {}, 'ggb')
+          xml('resource', {}, '' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 6))
         ])
     );
    
@@ -70,8 +72,19 @@ xmpp.on('stanza', async stanza => {
 
 
   // *******************************
+  // *** auth error
+  if (stanza.is('iq') && stanza.children[1] !== undefined && stanza.children[1].attrs.code == '401' && stanza.attrs.type == 'error' && stanza.attrs.id == 'auth1') {
+    console.log('');
+    log.info('☁ Authentication error: check username/password');
+    xmpp.options.authenticated = false;
+    return;
+  }
+
+
+  // *******************************
   // *** continue after login
   if (stanza.is('iq') && stanza.children[0] == undefined && stanza.attrs.type == 'result' && stanza.attrs.id != 'set1') {
+    console.log('');
     log.info('☁ Authenticated: ' + this.myJID.split('@')[0]);
     //xmpp.emit('online', this.myJID);
     //return;
@@ -121,13 +134,22 @@ xmpp.on('mucmessage', (strMsg, from, to) => {
   try {
     var msg = JSON.parse(strMsg);
   }
-  catch(err) {return};
+  catch(err) {
+    let strWelcome = strMsg.split('/welcome ')[1];
+    if (strWelcome !== undefined ) log.info('☁ Channel connected:', strWelcome);
+    return;
+  };
 
   if (onRemoteCandle !== undefined && msg.remote !== undefined && msg.remote === 'candle') {
-    log.debug('\n⮈ ☁ ' + strMsg);
-    onRemoteCandle(msg);
+    msg.candle.start = moment(Number(msg.candle.start) * 1000);
+    if (msg.candle.start.valueOf() > lastRemoteCandle.start.valueOf()) {
+      log.debug('\n⮈ ☁ ' + strMsg);
+      onRemoteCandle(msg);
+      lastRemoteCandle = msg.candle;
+    }
   }
   if (onRemoteAdvice !== undefined && msg.remote !== undefined && msg.remote === 'advice') {
+    msg.advice.start = moment(Number(msg.advice.start) * 1000);
     log.debug('\n⮈ ☁ ' + strMsg);
     onRemoteAdvice(msg);
   }
@@ -137,6 +159,7 @@ xmpp.on('status', async status => {
   //if (config.cloudConnector.debugXMPP) log.debug('🛈 status ' + status)
 
   if (status == 'open') {
+    console.log('');
     log.info('☁ Server connected');
 
     if (xmpp.options.guestLogin) {
@@ -161,7 +184,11 @@ xmpp.on('status', async status => {
   }
 })
 xmpp.on('input', input => {
-  if (config.cloudConnector.debugXMPP) log.debug('\n⮈ ' + input)
+  if (input === ' 	 ') {
+    log.debug('☁ heartbeat: connection alive');
+  } else if (config.cloudConnector.debugXMPP) {
+    log.debug('\n⮈ ' + input);
+  }
 })
 xmpp.on('output', output => {
   if (config.cloudConnector.debugXMPP) log.debug('\n⮊ ' + output)

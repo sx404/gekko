@@ -12,6 +12,7 @@ var CandleBatcher = require(dirs.core + 'candleBatcher');
 
 var moment = require('moment');
 var isLeecher = config.market && config.market.type === 'leech';
+var useGekkoCloud = config.cloudConnector && config.cloudConnector.useCloudMarket === true;
 var batcher;
 
 var Actor = function(done) {
@@ -29,7 +30,7 @@ var Actor = function(done) {
     // so that the strat can use this data as a "warmup period"
     //
     // the realtime "leech" market won't use the stitcher
-    if(mode === 'realtime' && !isLeecher) {
+    if((mode === 'realtime' && !isLeecher) || (mode === 'realtime' && !useGekkoCloud)) {
       var Stitcher = require(dirs.tools + 'dataStitcher');
       var stitcher = new Stitcher(batcher);
       stitcher.prepareHistoricalData(done);
@@ -152,7 +153,9 @@ Actor.prototype.finish = function(done) {
 
 // EMITTERS
 Actor.prototype.relayAdvice = function(advice) {
-  advice.date = this.candle.start.clone().add(1, 'minute');
+  if (this.candle !== undefined) {
+    advice.date = this.candle.start.clone().add(1, 'minute');
+  }
   this.deferredEmit('advice', advice);
 }
 

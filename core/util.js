@@ -95,7 +95,7 @@ var util = {
     }
   },
   logVersion: function() {
-    return  `Gekko version: v${util.getVersion()}`
+    return  `Green Gekko version: v${util.getVersion()}`
     + `\nNodejs version: ${process.version}`;
   },
   die: function(m, soft) {

@@ -115,7 +115,7 @@ var pipeline = (settings) => {
           // if a plugin wants to listen
           // to something disabled
           if(!emitters[sub.emitter]) {
-            if(!plugin.meta.greedy) {
+            if(!plugin.meta.greedy && sub.emitter !== 'telegrambot') {
 
               let emitterMessage = '';
               if(sub.emitters) {
@@ -181,14 +181,18 @@ var pipeline = (settings) => {
   var setupMarket = function(next) {
     // load a market based on the config (or fallback to mode)
     let marketType;
-    if(config.market)
+    if(config.market) {
       marketType = config.market.type;
-    else
+    } else if(config.cloudConnector && config.cloudConnector.useCloudMarket === true) {
+      marketType = 'cloud';
+    }
+    else {
       marketType = mode;
+    }
 
     var Market = require(dirs.markets + marketType);
 
-    market = new Market(config);
+    market = new Market(config, plugins);
 
     next();
   }
