@@ -11,11 +11,11 @@ An Interactive Crypto Trading Bot, askmike/gekko v0.6.8 backwards compatible
 ## New: Gekko Cloud integration
 - Allows the connection of Gekko bot instances all over the world in realtime
 - Gekko Cloud has a fair-use principle, share your trading signals (but keep your strategy private) and get access to foreign strategy signals and candles. Give and take.
-- Write new trading strategies by combining remote advices/candles with local strategy confirmations
+- Write new trading strategies by combining remote advices/candles with local trading strategy confirmations
 - Subscribe to fair-use, free or payed Gekko Cloud channels. Signal publishers determine the category and fee.
 - Uses fast TCP socket connections, extended XMPP protocol standards
 
-## Features
+## Green Gekko Features
 
 - Extended trading-strategy possibilities:
    - Heikin-Ashi candles core support, e.g. use candle.ha.close instead of candle.close inside your strategy
