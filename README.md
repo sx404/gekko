@@ -13,6 +13,7 @@ An Interactive Crypto Trading Bot, askmike/gekko v0.6.8 backwards compatible
 - Gekko Cloud has a fair-use principle, share your trading signals (but keep your strategy private) and get access to foreign strategy signals and candles. Give and take.
 - Write new trading strategies by combining remote advices/candles with local trading strategy confirmations
 - Subscribe to fair-use, free or payed Gekko Cloud channels. Signal publishers determine the category and fee.
+- Execute your strategy signals multiple times for friends or family crypto accounts
 - Uses fast TCP socket connections, extended XMPP protocol standards
 
 ## Green Gekko Features
