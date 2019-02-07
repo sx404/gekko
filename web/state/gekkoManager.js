@@ -19,16 +19,19 @@ GekkoManager.prototype.add = function({mode, config}) {
   // set type
   let type;
   if(mode === 'realtime') {
-    if(config.market && config.market.type)
+    if(config.market && config.market.type) {
       type = config.market.type;
-    else
+    } else if (config.cloudConnector && config.cloudConnector.useCloudMarket === true) {
+      type = 'cloud';
+    } else {
       type = 'watcher';
+    }
   } else {
     type = '';
   }
 
   let logType = type;
-  if(logType === 'leech') {
+  if(logType === 'leech' || logType === 'cloud') {
     if(config.trader && config.trader.enabled)
       logType = 'tradebot';
     else

@@ -46,7 +46,6 @@ TMP_*
 .idea
 volumes
 config.js
-config-*.js
 Think5*.*
 private
 private-*.js
