@@ -1,6 +1,6 @@
 {
   "name": "gekko",
-  "version": "2019.0.68.234",
+  "version": "2019.0.68.244",
   "description": "A crypto trading bot for auto trading at various exchanges",
   "keywords": [
     "trading",
@@ -14,7 +14,7 @@
     "start": "node ./gekko --config config.js --ui"
   },
   "dependencies": {
-    "@xmpp/client": "^0.6.2",
+    "@xmpp/client": "^0.7.0",
     "async": "2.1.2",
     "axios": "^0.18.0",
     "bitfinex-api-node": "^1.2.1",

@@ -2,7 +2,8 @@
 // *** T5coworker.js                                                        ***
 // ****************************************************************************
 // * Purpose: strategy to automate manual trading advices in conjunction with
-// * the telegram bot plugin.
+// * the telegram bot plugin. It does not contain any own strategy logic but 
+// * follows remote advices from Gekko Cloud (set config).
 // * When this strategy is run within a container and other strategies, it will
 // * monitor manual settings to stop-losses and take-profits. The "normal"
 // * gekko strategy will run side-by-side.
@@ -80,8 +81,24 @@ stratCW.onAdvice = function (advice) {
 
 stratCW.onRemoteAdvice = function (radvice) {
     //instead of writing our own trading strategy, we take the remote advice
-    //and send it to our gekko bot for trade execution
-    objcontext.advice(radvice.advice);
+    //and use it for own trade execution
+    
+    var myPair = config.watch.asset.toLowerCase() + config.watch.currency.toLowerCase();
+    var myExchange = config.watch.exchange.toLowerCase();
+
+    log.info('We received a trading advice from the Gekko Cloud to go: ' + radvice.advice.recommendation);
+
+    if (radvice.pair !== myPair) {
+        log.info('The remote advice is for trading pair ' + radvice.pair + '. Local configuration is ' + myPair + '. Mismatch: Skip advice.');
+        return;
+    }
+
+    if (radvice.exchange !== myExchange) {
+        log.info('The remote advice is for exchange ' + radvice.exchange + '. Local exchange config is ' + myExchange + '. Mismatch: Skip advice.');
+        return;
+    }
+
+    this.advice(radvice.advice);
 }
 
 

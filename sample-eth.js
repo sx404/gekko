@@ -68,6 +68,7 @@ config.T5mainasync = {
     RSIlow: 44,
     MACDhigh: 0,
     MACDlow: 0.88,
+    TEMAmin: 100.065,
     persistance: 1
   }
 };

@@ -47,6 +47,7 @@ stratMain.init = function (context) {
     this.RSIlow = this.context.settings.thresholds.RSIlow;
     this.MACDhigh = this.context.settings.thresholds.MACDhigh;
     this.MACDlow = this.context.settings.thresholds.MACDlow;
+    this.TEMAmin = this.context.settings.thresholds.TEMAmin;
     this.persistance = this.context.settings.thresholds.persistance;
 
     const MACDSettings = this.context.settings.MACD;
@@ -71,6 +72,7 @@ stratMain.init = function (context) {
 stratMain.onCandle = async function (candle) {
     this.cb60.write([candle]);
     this.cb60.flush();
+    console.log('!!!!!', this.RSIhigh);
 }
 
 
@@ -86,10 +88,8 @@ stratMain.onCandle60M = async function (candle) {
         return;
     }
 
-    //define necessary entry trend strength based on bollinger band width and ppo
-    obj.tema60M.treshold = 100.065; 
-    
-    if ((obj.tema60M.trend > obj.tema60M.treshold) || obj.exposedMain) {
+    //check in uptrends only
+    if ((obj.tema60M.trend > this.TEMAmin) || obj.exposedMain) {
         obj.check60M(candle);
     }       
 }
