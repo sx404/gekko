@@ -72,7 +72,6 @@ stratMain.init = function (context) {
 stratMain.onCandle = async function (candle) {
     this.cb60.write([candle]);
     this.cb60.flush();
-    console.log('!!!!!', this.RSIhigh);
 }
 
 
