@@ -14,6 +14,7 @@ const BacktestResultExporter = function() {
   this.roundtrips = [];
   this.stratUpdates = [];
   this.stratCandles = [];
+  this.candles1M = [];
   this.trades = [];
 
   this.candleProps = config.backtestResultExporter.data.stratCandleProps;
@@ -39,6 +40,16 @@ const BacktestResultExporter = function() {
 BacktestResultExporter.prototype.processPortfolioValueChange = function(portfolio) {
   this.portfolioValue = portfolio.balance;
 }
+
+BacktestResultExporter.prototype.processCandle = function(candle, done) {
+  let strippedCandle = {
+    ...candle,
+    start: candle.start.unix()
+  }
+
+  this.candles1M.push(strippedCandle);
+  done();
+};
 
 BacktestResultExporter.prototype.processStratCandle = function(candle) {
   let strippedCandle;
@@ -104,6 +115,9 @@ BacktestResultExporter.prototype.finalize = function(done) {
   if(config.backtestResultExporter.data.stratCandles)
     backtest.stratCandles = this.stratCandles;
 
+  if(config.backtestResultExporter.data.candles1M)
+    backtest.candles1M = this.candles1M;
+
   if(config.backtestResultExporter.data.trades)
     backtest.trades = this.trades;
 
@@ -130,7 +144,7 @@ BacktestResultExporter.prototype.writeToDisk = function(backtest, next) {
 
   fs.writeFile(
     util.dirs().gekko + filename,
-    JSON.stringify(backtest),
+    JSON.stringify(backtest, null, 2),
     err => {
       if(err) {
         log.error('unable to write backtest result', err);
