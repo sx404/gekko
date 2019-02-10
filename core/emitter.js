@@ -18,7 +18,7 @@ util.inherits(GekkoEventEmitter, NativeEventEmitter);
 
 // push to stack
 GekkoEventEmitter.prototype.deferredEmit = function(name, payload) {
-  if (config.tradingAdvisor.fastAdviceEmit && (name === 'advice' || name === 'tradeInitiated' || name === 'tradeCompleted')) {
+  if (config.tradingAdvisor.fastAdviceEmit && require('./util.js').gekkoMode() !== 'backtest' && (name === 'advice' || name === 'tradeInitiated' || name === 'tradeCompleted')) {
     this.emit(name, payload);
   }
   else {
