@@ -77,8 +77,12 @@ Actor.prototype.setupStrategy = async function(cb) {
     .on(
       'stratUpdate',
       e => this.deferredEmit('stratUpdate', e)
-    ).on('stratNotification',
+    )
+    .on('stratNotification',
       e => this.deferredEmit('stratNotification', e)
+    )
+    .on('indicator',
+      e => this.deferredEmit('indicator', e)
     )
 
   this.strategy

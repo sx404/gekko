@@ -65,6 +65,11 @@ var subscriptions = [
     handler: 'processStratNotification'
   },
   {
+    emitter: 'tradingAdvisor',
+    event: 'indicator',
+    handler: 'processIndicator'
+  },
+  {
     emitter: ['trader', 'paperTrader'],
     event: 'tradeInitiated',
     handler: 'processTradeInitiated'

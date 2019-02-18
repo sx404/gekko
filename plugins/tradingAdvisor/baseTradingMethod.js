@@ -259,6 +259,10 @@ Base.prototype.addIndicator = function(name, type, parameters) {
   // some indicators need a price stream, others need full candles
 }
 
+Base.prototype.emitIndicator = function(indicator) {
+  this.emit('indicator', indicator);
+}
+
 Base.prototype.advice = function(newDirection) {
   // ignore legacy soft advice
   if(!newDirection) {
