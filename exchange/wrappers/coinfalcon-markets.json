@@ -17,7 +17,8 @@
     "STQ",
     "DASC",
     "EOS",
-    "DTX"
+    "DTX",
+    "ZLC"
   ],
   "currencies": [
     "BTC",
@@ -44,7 +45,7 @@
       ],
       "minimalOrder": {
         "amount": 1e-8,
-        "price": 0.00001,
+        "price": 0.000001,
         "order": 0
       }
     },
@@ -309,6 +310,28 @@
       "minimalOrder": {
         "amount": 0.01,
         "price": 1e-8,
+        "order": 0
+      }
+    },
+    {
+      "pair": [
+        "BTC",
+        "ZLC"
+      ],
+      "minimalOrder": {
+        "amount": 0.0001,
+        "price": 0.000001,
+        "order": 0
+      }
+    },
+    {
+      "pair": [
+        "USDT",
+        "ETH"
+      ],
+      "minimalOrder": {
+        "amount": 0.00001,
+        "price": 0.01,
         "order": 0
       }
     }
