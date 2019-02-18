@@ -3,6 +3,7 @@
 An Interactive Crypto Trading Bot, askmike/gekko v0.6.8 backwards compatible
 
 | Test your own trading strategies and view backtests in the browser |
+| ------------------------ |
 | ![Green Gekko charts](https://github.com/mark-sch/gekko/raw/develop/screenshots/chart-fullscreen.png) |
 
 | Operate with a Telegram bot | Gekko with Telegram in admin mode |
