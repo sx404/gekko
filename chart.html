@@ -3,6 +3,8 @@
     The component is ONLY free of charge for non-profit/personal use.
     For further details or for buying a commercial license, visit the vendor
     website: https://shop.highsoft.com/highcharts/
+
+    http://jsfiddle.net/tvpcwLj9/
 -->
 
 <html>
@@ -30,10 +32,15 @@
 
             for (let i=0; i < tradeLength; i += 1) {
                 let isBuy = data.trades[i].action === 'buy' ? true : false;
+                let txt = `
+                          Trade: ${data.trades[i].action.toUpperCase()} <br/><br/>
+                          Price: ${data.trades[i].price}
+                          `;
+                if (data.trades[i].origin !== undefined) txt += '<br/><br/>Origin: ' + data.trades[i].origin
                 trades.push({
                     x: data.trades[i].date*1000, // the date
                     title: isBuy ? 'B' : 'S',
-                    text: 'Trade: ' + data.trades[i].action.toUpperCase() + '<br/><br/>Price: ' + data.trades[i].price + '',
+                    text: txt,
                     color: isBuy ? 'green' : 'red',
                     fillColor: isBuy ? 'green' : 'red',
                     stackDistance: isBuy ? 50 : 25,
