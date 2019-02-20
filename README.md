@@ -1,6 +1,10 @@
-# Green Gekko [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
+# Green Gekko 2019 r255 [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
-An Interactive Crypto Trading Bot, askmike/gekko v0.6.8 backwards compatible
+An Interactive Crypto Trading Bot, gekko backwards compatible
+
+| Test your own trading strategies and view backtests in the browser |
+| ------------------------ |
+| ![Green Gekko charts](https://github.com/mark-sch/gekko/raw/develop/screenshots/chart-fullscreen.png) |
 
 | Operate with a Telegram bot | Gekko with Telegram in admin mode |
 | ------------------------ | --------------------------------- |
