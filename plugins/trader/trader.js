@@ -275,7 +275,9 @@ Trader.prototype.createOrder = function(side, amount, advice, id, params) {
     portfolio: this.portfolio,
     balance: this.balance,
     date: advice.date,
-    setTakerLimit: params.setTakerLimit,
+    origin: advice.origin,
+    infomsg: advice.infomsg, 
+    setTakerLimit: advice.setTakerLimit !== undefined ? advice.setTakerLimit : params.setTakerLimit,
     setBuyAmount: params.setBuyAmount,
     setSellAmount: params.setSellAmount
   });
@@ -342,6 +344,9 @@ Trader.prototype.createOrder = function(side, amount, advice, id, params) {
           cost,
           amount: summary.amount,
           price: summary.price,
+          origin: advice.origin,
+          infomsg: advice.infomsg, 
+          setTakerLimit: advice.setTakerLimit !== undefined ? advice.setTakerLimit : params.setTakerLimit,
           portfolio: this.portfolio,
           balance: this.balance,
           date: summary.date,
