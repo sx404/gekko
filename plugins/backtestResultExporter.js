@@ -2,8 +2,8 @@
 // *** backtestResultExporter.js                                                  ***
 // **********************************************************************************
 // * Purpose: This plugin listens to candle and indicator event data during
-// * backtest mode and writes the data into a json and/or js file. This data can be
-// * used to view a backtest in a graphical view (open chart.html file).
+// * backtest mode and writes the data into a json and/or mybacktest.js file. This data
+// * can be used to view a backtest in a graphical view (open chart.html file).
 // * Since a one year backtest can contain a lot of data, this plugin batches candle
 // * data. All candles prior the last 4 weeks are stored in 60min candles. Candle
 // * data from last month until last week is stored in 5min candles and the very last
@@ -34,8 +34,9 @@ config.backtestResultExporter = {
 }
 // *
 // **********************************************************************************
-// * You can export indicator data by adding this code to your strategies,
-// * emit your indicator data everytime your indicator has been updated:
+// * You can export your own indicator data by adding this code to your strategies,
+// * it will then be displayed in chart.html automatically.
+// * Emit your indicator data everytime your indicator has been updated:
 
 this.emitIndicator({
     name: 'rsi60M',

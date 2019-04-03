@@ -144,9 +144,11 @@ Trader.prototype.processCandle = function(candle, done) {
 
 Trader.prototype.processAdvice = function(advice) {
   let direction;
+  let configBuyAmount = params.setBuyAmount !== undefined ? params.setBuyAmount : '98%';
+  let configSellAmount = params.setSellAmount !== undefined ? params.setSellAmount : '100%';
   let setTakerLimit = advice.setTakerLimit !== undefined ? advice.setTakerLimit : 0;
-  let setBuyAmount = advice.setBuyAmount !== undefined ? advice.setBuyAmount : '100%';
-  let setSellAmount = advice.setSellAmount !== undefined ? advice.setSellAmount : '100%';
+  let setBuyAmount = advice.setBuyAmount !== undefined ? advice.setBuyAmount : configBuyAmount;
+  let setSellAmount = advice.setSellAmount !== undefined ? advice.setSellAmount : configSellAmount;
 
   if(advice.recommendation === 'long') {
     direction = 'buy';
@@ -177,7 +179,7 @@ Trader.prototype.processAdvice = function(advice) {
 
   if(direction === 'buy') {
     
-    if(this.exposure > 0.99) {
+    if(this.exposure > 0.97) {
       log.info('NOT buying, already exposed');
       return this.deferredEmit('tradeAborted', {
         id,
