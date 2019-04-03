@@ -11,9 +11,9 @@
 
 
 const tulind = require('tulind');
-const util = require('../../core/util')
+const util = require('../../core/util');
 const dirs = util.dirs();
-const log = require(dirs.core + 'log')
+const log = require(dirs.core + 'log');
 
 
 var Indicator = function(config) {
@@ -49,7 +49,9 @@ var Indicator = function(config) {
 
 
 Indicator.prototype.addCandle = function (candle) {
-    this.age++;  
+    this.age++;
+    if (this.lastAddedCandle !== undefined) this.updateCandle(this.lastAddedCandle);
+    this.lastAddedCandle = candle;
     this.candleProps.open.push(candle.open);
     this.candleProps.high.push(candle.high);
     this.candleProps.low.push(candle.low);
@@ -68,8 +70,34 @@ Indicator.prototype.addCandle = function (candle) {
 }
 
 
+Indicator.prototype.updateCandle = function (candle) {
+    this.candleProps.close[this.candleProps.close.length - 1] = candle.close;
+}
+
+
 Indicator.prototype.update = function (candle) {
     this.addCandle(candle) ;  
+
+    return new Promise((resolve, reject) => {
+        //e.g. this.indName = 'sma'
+        tulind.indicators[this.indName].indicator(this.tulipInput, this.config.options, function(err, tulipResults) {
+            if (err) {
+                reject(err);
+            }
+            else {
+                var arrResult = [];
+                for (let i=0; i<tulipResults.length; i++) {
+                   arrResult.push(tulipResults[i][tulipResults[i].length-1]);
+                }
+                resolve(arrResult);
+            }
+        });
+    });
+}
+
+
+Indicator.prototype.repaint = function (candle) {
+    this.updateCandle(candle);
 
     return new Promise((resolve, reject) => {
         //e.g. this.indName = 'sma'
