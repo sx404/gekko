@@ -74,7 +74,7 @@ config.cloudConnector = {
 config.T5cloudstrat = {
   setTakerLimit: '1%',
   setSellAmount: '100%',
-  setBuyAmount: '99%',
+  setBuyAmount: '98%',
 };
 
 

@@ -115,7 +115,7 @@ var pipeline = (settings) => {
           // if a plugin wants to listen
           // to something disabled
           if(!emitters[sub.emitter]) {
-            if(!plugin.meta.greedy && sub.emitter !== 'telegrambot') {
+            if(!plugin.meta.greedy && sub.emitter !== 'telegrambot' && sub.emitter !== 'cloudConnector') {
 
               let emitterMessage = '';
               if(sub.emitters) {
