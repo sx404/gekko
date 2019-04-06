@@ -70,9 +70,10 @@ PerformanceAnalyzer.prototype.processStratWarmupCompleted = function() {
 }
 
 PerformanceAnalyzer.prototype.processCandle = function(candle, done) {
+  console.log('!!!!!bbb', candle.close, this.warmupCompleted);
   if(!this.warmupCompleted) {
     this.warmupCandle = candle;
-    return done();
+    //return done();
   }
 
   this.price = candle.close;
