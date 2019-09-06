@@ -36,6 +36,7 @@
     "lodash": "^4.17.5",
     "moment": "^2.22.1",
     "request-promise": "^4.2.2",
-    "retry": "^0.12.0"
+    "retry": "^0.12.0",
+    "therocktrading": "^0.9.0"
   }
 }

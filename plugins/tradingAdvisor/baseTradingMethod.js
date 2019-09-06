@@ -78,10 +78,10 @@ var Base = function(settings) {
   if(!this.onRemoteCandle)
     this.onRemoteCandle = function() {};
 
-  //if no requiredHistory was provided, set default from tradingAdvisor
-  if (!_.isNumber(this.requiredHistory)){
-    this.requiredHistory = config.tradingAdvisor.historySize;
+  if(_.isNumber(this.requiredHistory)) {
+    log.debug('Ignoring strategy\'s required history, using the "config.tradingAdvisor.historySize" instead.');
   }
+  this.requiredHistory = config.tradingAdvisor.historySize;
 
   if(!config.debug || !this.log)
     this.log = function() {};

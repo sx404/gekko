@@ -163,6 +163,13 @@ var plugins = [
     modes: ['realtime']
   },
   {
+    name: 'Candle Uploader',
+    description: 'Upload candles to an extneral server',
+    slug: 'candleUploader',
+    async: true,
+    modes: ['realtime']
+  },
+  {
     name: 'Twitter',
     description: 'Sends trades to twitter.',
     slug: 'twitter',
@@ -266,6 +273,13 @@ var plugins = [
     modes: ['realtime', 'backtest'],
     emits: true,
     path: config => 'tradingAdvisor/tradingAdvisor.js',
+  },
+  {
+    name: 'Blotter',
+    description: 'Writes all buy/sell trades to a blotter CSV file',
+    slug: 'blotter',
+    async: false,
+    modes: ['realtime'],
   }
 ];
 
