@@ -1,6 +1,6 @@
 #!/bin/bash
 
-( /usr/bin/time --verbose node gekko.js --config config-eth.js --backtest --set debug=true | aha --black --title 'T5multitime_ETHEUR_20180101-20181231' > backtest-results/T5multitime_ETHEUR_20180101-20181231.html &)
+( /usr/bin/time --verbose node gekko.js --config cfg/mark/config-eth.js --backtest --set debug=true | aha --black --title 'T5multimix_ETHEUR_20180101-20190228' > backtest-results/T5multimix_ETHEUR_20180101-20190228.html &)
 #( /usr/bin/time --verbose node gekko.js --config config-xrp.js --backtest --set debug=true | aha --black --title 'T5multitime_XRPEUR_20180101-20181231' > backtest-results/T5multitime_XRPEUR_20180101-20181231.html &)
 #( /usr/bin/time --verbose node gekko.js --config config-bch.js --backtest --set debug=true | aha --black --title 'T5multitime_BCHEUR_20180101-20181231' > backtest-results/T5multitime_BCHEUR_20180101-20181231.html &)
 #( /usr/bin/time --verbose node gekko.js --config config-ltc.js --backtest --set debug=true | aha --black --title 'T5multitime_LTCEUR_20180101-20181231' > backtest-results/T5multitime_LTCEUR_20180101-20181231.html &)
