@@ -1,4 +1,4 @@
-# Green Gekko 2019 r255 [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
+# Green Gekko 2019 r271 [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
 An Interactive Crypto Trading Bot, gekko backwards compatible
 
@@ -65,6 +65,7 @@ An Interactive Crypto Trading Bot, gekko backwards compatible
 - [T5mainasync strategy, ETHEUR, 20180101-20181001](https://git.io/fhMJo) / [settings](https://raw.githubusercontent.com/mark-sch/gekko/develop/sample-eth.js) / [source](https://raw.githubusercontent.com/mark-sch/gekko/develop/strategies/T5mainasync.js)
 - [T5multimarket_strategy, ETHEUR, 20180101-20181001](https://git.io/fhMJE) / [source](https://raw.githubusercontent.com/mark-sch/gekko/develop/strategies/T5multimarket.js)
 - [T5multimix strategy, ETHEUR, 20180101-20181231](https://git.io/fhMvD)
+- [T5multimix strategy with T5optimizer, ETHEUR, 20180101-20190901](https://git.io/Jeqas)
 
 ## Getting started
 
