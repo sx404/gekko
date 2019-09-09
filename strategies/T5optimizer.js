@@ -9,16 +9,33 @@ var rsiOptimizer = {
 
 rsiOptimizer.init = function(context) {
     this.enabled = context.settings.enableT5optimizer;
-    this.limitT5optitrades = context.settings.limitT5optitrades;
+    this.T5os = context.settings.T5optimizer;
+    this.T5optimizeFrom = context.settings.T5optimizeFrom;
+    this.T5optimizeTo = context.settings.T5optimizeTo;
     this.lastCheckedPrice = 100000;
     this.initialCurrency = 1000;
 
+    console.log(''); //blank line
     try {
         this.data =  JSON.parse(fs.readFileSync(program['config'] + '.optimizer'));
-        log.info('*** Runtime optimizer: Loading optimizer data from disk successfully!');
-        this.getBestResults(true);
-        log.info('*** Runtime optimizer: Best RSI is', this.data.buyTreshold, '/', this.data.sellTreshold, '(within the scope of last', context.settings.limitT5optitrades, 'trades)');
-        //log.info('*** Runtime optimizer: Best RSI for all recorded history trades:', this.best.totalBuyRsi, '/', this.best.totalSellRsi);
+        log.info('*** T5 Runtime optimizer: Loading optimizer data from disk successfully!');
+        log.info('*** T5 Runtime optimizer: Discovering recorded data...');
+        this.getBestResults(this.T5optimizeFrom, this.T5optimizeTo);
+        this.data.buyTreshold = this.best.buyRsi;
+        this.data.sellTreshold = this.best.sellRsi;
+        log.info('*** Best RSI is', this.best.buyRsi, '/', this.best.sellRsi, '(From', this.best.from, 'to', this.best.to, '- Profit: ' + this.best.totalProfit + '%');
+    
+        if (this.T5os != undefined && this.T5os.switch != undefined && this.T5os.switch.length >= 2) {
+            console.log(''); //blank line
+            log.info('*** Best market segmentation:');
+            for (let i=0; i < this.T5os.switch.length-1; i++) {
+                this.getBestResults(this.T5os.switch[i].date, this.T5os.switch[i+1].date, this.T5os.switch[i].buyRSI, this.T5os.switch[i].sellRSI);
+                log.info('*** ', 'From', this.best.from, 'to', this.best.to, '- Profit: ' + this.best.totalProfit + '% with best RSI', this.best.buyRsi, '/', this.best.sellRsi, 'and ' + this.best.testRsiProfit + '% with ' + this.T5os.switch[i].buyRSI + ' / ' + this.T5os.switch[i].sellRSI);
+            }
+        }
+
+        log.info('*** Optimizer data is already present, disabling T5optifilesave now');
+        context.settings.enableT5optifilesave = false;
     } catch (error) {
         this.data = rsiOptimizer.data;
         for (let i=51; i<= 70; i++) {
@@ -33,9 +50,8 @@ rsiOptimizer.init = function(context) {
         
         this.data.buyTreshold = context.settings.thresholds.RSIhigh;
         this.data.sellTreshold = context.settings.thresholds.RSIlow;
-        log.info('*** Runtime optimizer: Started with blank trade history dataset!');  
-        log.info('*** Runtime optimizer: Using initial RSI values', this.data.buyTreshold, '/', this.data.sellTreshold);
-        //log.info('*** Runtime optimizer: Dynamically optimize strategy for the last', context.settings.limitT5optitrades,'trades');
+        log.info('*** T5 Runtime optimizer: Started with blank trade history dataset!');  
+        log.info('*** T5 Runtime optimizer: Using initial RSI values', this.data.buyTreshold, '/', this.data.sellTreshold);
     }
 
     //autosave optimizer data
@@ -51,8 +67,28 @@ rsiOptimizer.init = function(context) {
 }
 
 
+rsiOptimizer.checkRSIadjustment = function(dtCandle) {
+    if (this.T5os != undefined && this.T5os.switch != undefined && this.T5os.switch.length >= 2) {
+        for (let i=this.T5os.switch.length-1; i >= 0; i--) {
+            if (dtCandle >= this.T5os.switch[i].date) {
+                    if (this.data.buyTreshold != Number(this.T5os.switch[i].buyRSI) || this.data.sellTreshold != Number(this.T5os.switch[i].sellRSI)) {
+                    console.log(''); //blank line
+                    log.info('*** T5 optimizer: Changing RSI thresholds to', this.T5os.switch[i].buyRSI, '/' , this.T5os.switch[i].sellRSI);
+                    console.log(''); //blank line
+
+                    this.data.buyTreshold = Number(this.T5os.switch[i].buyRSI);
+                    this.data.sellTreshold = Number(this.T5os.switch[i].sellRSI);
+                }
+                break;
+            }
+        }
+    }
+}
+
+
 rsiOptimizer.logPossibleSells = function(rsi, price, start) {
     if (this.enabled === false) return;
+    this.checkRSIadjustment(start);
 
     for (let i=51; i<= 70; i++) {
         for (let j=30; j<= 50; j++) {
@@ -75,21 +111,12 @@ rsiOptimizer.logPossibleSells = function(rsi, price, start) {
             }
         }
     }
-
-    //calc new, best rsi results when the price has moved 10% from the last check
-    /*
-    let pricediff = Math.abs(this.lastCheckedPrice - price) / price;
-
-    if (pricediff > 0.01) {
-        this.lastCheckedPrice = price;
-        this.getBestResults();
-    }
-    */
 }
 
 
 rsiOptimizer.logPossibleBuys = function(rsi, price, start) {
     if (this.enabled === false) return;
+    this.checkRSIadjustment(start);
 
     for (let i=51; i<= 70; i++) {
         if (rsi > i) {
@@ -112,41 +139,55 @@ rsiOptimizer.logPossibleBuys = function(rsi, price, start) {
 }
 
 
-rsiOptimizer.getBestResults = function(forceCalc) {
+rsiOptimizer.getBestResults = function(from, to, testBuyRsi, testSellRsi) {
     this.best = {
         totalProfit: 0,
         buyRsi: 51,
         sellRsi: 30,
     };
+
+    //calc profit for a certain timeframe
+    if (from != undefined && to != undefined) {
+        for (var i=51; i<= 70; i++) {
+            for (var j=30; j<= 50; j++) {
+                this.data['Buy'+i]['Sell'+j].profit = 0;
+                for (var k=0; k<this.data['Buy'+i]['Sell'+j].trades.length; k++) {
+                    if (this.data['Buy'+i]['Sell'+j].trades[k].type == 'sell' && this.data['Buy'+i]['Sell'+j].trades[k].date >= from && this.data['Buy'+i]['Sell'+j].trades[k].date <= to) {
+                        this.data['Buy'+i]['Sell'+j].profit += this.data['Buy'+i]['Sell'+j].trades[k].profit;
+                    }
+                }
+            }
+        }
+    }
+    else {
+        for (var i=51; i<= 70; i++) {
+            for (var j=30; j<= 50; j++) {
+                this.data['Buy'+i]['Sell'+j].profit = 0;
+                for (var k=0; k<this.data['Buy'+i]['Sell'+j].trades.length; k++) {
+                    if (this.data['Buy'+i]['Sell'+j].trades[k].type == 'sell') {
+                        this.data['Buy'+i]['Sell'+j].profit += this.data['Buy'+i]['Sell'+j].trades[k].profit;
+                    }
+                }
+            }
+        }
+    }
+
     for (var i=51; i<= 70; i++) {
         for (var j=30; j<= 50; j++) {
             if (this.data['Buy'+i]['Sell'+j].profit >= this.best.totalProfit) {
                 this.best.totalProfit = this.data['Buy'+i]['Sell'+j].profit;
                 this.best.buyRsi = i;
                 this.best.sellRsi = j;
-                this.best.changed = true;
+                //console.log('bestProfit:', this.best.totalProfit, this.best.buyRsi, this.best.sellRsi);
             }
         }
     }
 
-    if (forceCalc) {
-        this.data.buyTreshold = this.best.buyRsi;
-        this.data.sellTreshold = this.best.sellRsi;
-    }
+    this.best.from = this.data['Buy'+this.best.buyRsi]['Sell'+this.best.sellRsi].trades[0].date;
+    this.best.to = this.data['Buy'+this.best.buyRsi]['Sell'+this.best.sellRsi].trades[this.data['Buy'+this.best.buyRsi]['Sell'+this.best.sellRsi].trades.length-1].date;    
 
-    if (this.best.changed && this.data.buyTreshold !== this.best.buyRsi && this.data.sellTreshold !== this.best.sellRsi) {
-        this.best.changed = false;
-        
-        //change rsi params dynamically when optimized enough trades
-        var tLength = this.data['Buy'+this.best.buyRsi]['Sell'+this.best.sellRsi].trades.length;
-        if (forceCalc || tLength >= this.limitT5optitrades-2) {
-            this.data.buyTreshold = this.best.buyRsi;
-            this.data.sellTreshold = this.best.sellRsi;
-            console.log('*** Runtime optimizer: Changing strategy RSIs to', this.data.buyTreshold, '/', this.data.sellTreshold);
-        }
-        else {
-            console.log('*** Runtime optimizer: Best strategy RSIs during last', tLength, 'trades (but not applied yet)',  this.best.buyRsi, '/',  this.best.sellRsi);
-        }
+    if (testBuyRsi != undefined && testSellRsi != undefined) {
+        this.best.testRsiProfit = this.data['Buy'+testBuyRsi]['Sell'+testSellRsi].profit;
     }
 }
 

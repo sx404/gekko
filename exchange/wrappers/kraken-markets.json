@@ -1,13 +1,15 @@
 {
   "assets": [
     "ADA",
+    "ATOM",
+    "BAT",
     "BCH",
-    "BSV",
     "DASH",
     "EOS",
     "GNO",
     "QTUM",
     "USDT",
+    "WAVES",
     "ETC",
     "ETH",
     "LTC",
@@ -118,6 +120,159 @@
     },
     {
       "pair": [
+        "CAD",
+        "ATOM"
+      ],
+      "prefixed": [
+        "ZCAD",
+        "ATOM"
+      ],
+      "book": "ATOMCAD",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 4,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "ETH",
+        "ATOM"
+      ],
+      "prefixed": [
+        "XETH",
+        "ATOM"
+      ],
+      "book": "ATOMETH",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 6,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "EUR",
+        "ATOM"
+      ],
+      "prefixed": [
+        "ZEUR",
+        "ATOM"
+      ],
+      "book": "ATOMEUR",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 4,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "USD",
+        "ATOM"
+      ],
+      "prefixed": [
+        "ZUSD",
+        "ATOM"
+      ],
+      "book": "ATOMUSD",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 4,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "XBT",
+        "ATOM"
+      ],
+      "prefixed": [
+        "XXBT",
+        "ATOM"
+      ],
+      "book": "ATOMXBT",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 7,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "ETH",
+        "BAT"
+      ],
+      "prefixed": [
+        "XETH",
+        "BAT"
+      ],
+      "book": "BATETH",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 7,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "EUR",
+        "BAT"
+      ],
+      "prefixed": [
+        "ZEUR",
+        "BAT"
+      ],
+      "book": "BATEUR",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 5,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "USD",
+        "BAT"
+      ],
+      "prefixed": [
+        "ZUSD",
+        "BAT"
+      ],
+      "book": "BATUSD",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 5,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "XBT",
+        "BAT"
+      ],
+      "prefixed": [
+        "XXBT",
+        "BAT"
+      ],
+      "book": "BATXBT",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 8,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
         "EUR",
         "BCH"
       ],
@@ -162,57 +317,6 @@
       "book": "BCHXBT",
       "minimalOrder": {
         "amount": "0.002",
-        "unit": "asset"
-      },
-      "pricePrecision": 5,
-      "amountPrecision": 8
-    },
-    {
-      "pair": [
-        "EUR",
-        "BSV"
-      ],
-      "prefixed": [
-        "ZEUR",
-        "BSV"
-      ],
-      "book": "BSVEUR",
-      "minimalOrder": {
-        "amount": 0.01,
-        "unit": "asset"
-      },
-      "pricePrecision": 1,
-      "amountPrecision": 8
-    },
-    {
-      "pair": [
-        "USD",
-        "BSV"
-      ],
-      "prefixed": [
-        "ZUSD",
-        "BSV"
-      ],
-      "book": "BSVUSD",
-      "minimalOrder": {
-        "amount": 0.01,
-        "unit": "asset"
-      },
-      "pricePrecision": 1,
-      "amountPrecision": 8
-    },
-    {
-      "pair": [
-        "XBT",
-        "BSV"
-      ],
-      "prefixed": [
-        "XXBT",
-        "BSV"
-      ],
-      "book": "BSVXBT",
-      "minimalOrder": {
-        "amount": 0.01,
         "unit": "asset"
       },
       "pricePrecision": 5,
@@ -505,6 +609,74 @@
         "unit": "asset"
       },
       "pricePrecision": 4,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "ETH",
+        "WAVES"
+      ],
+      "prefixed": [
+        "XETH",
+        "WAVES"
+      ],
+      "book": "WAVESETH",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 7,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "EUR",
+        "WAVES"
+      ],
+      "prefixed": [
+        "ZEUR",
+        "WAVES"
+      ],
+      "book": "WAVESEUR",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 4,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "USD",
+        "WAVES"
+      ],
+      "prefixed": [
+        "ZUSD",
+        "WAVES"
+      ],
+      "book": "WAVESUSD",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 4,
+      "amountPrecision": 8
+    },
+    {
+      "pair": [
+        "XBT",
+        "WAVES"
+      ],
+      "prefixed": [
+        "XXBT",
+        "WAVES"
+      ],
+      "book": "WAVESXBT",
+      "minimalOrder": {
+        "amount": 0.01,
+        "unit": "asset"
+      },
+      "pricePrecision": 8,
       "amountPrecision": 8
     },
     {
